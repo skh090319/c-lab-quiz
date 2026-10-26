@@ -38,6 +38,7 @@
     .tag {border:1px solid #38506a;padding:4px 10px;border-radius:999px;font-size:11px;color:#cce4ff;font-weight:730;background:#1d2c45;}
     .tag.kind {background:#17413d;border-color:#276960;color:#a7f9d8;}
     .tag.hard {background:#42321b;border-color:#8b6935;color:#ffdc9b;}
+    .tag.intermediate {background:#252d52;border-color:#586db6;color:#c7d4ff;}
     .q-number {color:var(--muted);font-size:12px;font-weight:650;}
     .question-content {padding:19px 28px 24px;}
     h2 {font-size:clamp(20px,3.2vw,26px);line-height:1.5;letter-spacing:-.037em;margin:0 0 13px;white-space:pre-line;font-weight:780;}
@@ -135,7 +136,7 @@
     </div>
     <div id="reviewBanner" class="review-banner hidden"><span>오답 다시 풀기 · 맞히면 복습 완료!</span><button type="button" class="secondary" id="backToNotebook">오답노트로 돌아가기</button></div>
     <article class="question-card" aria-label="현재 문제">
-      <div class="q-head"><div class="tags"><span class="tag kind" id="typeTag">문제 유형</span><span class="tag" id="categoryTag">학습 범위</span><span class="tag" id="difficultyTag">기본</span></div><div class="q-number" id="qNumber">QUESTION 001</div></div>
+      <div class="q-head"><div class="tags"><span class="tag kind" id="typeTag">문제 유형</span><span class="tag" id="categoryTag">학습 범위</span><span class="tag" id="difficultyTag">기초</span></div><div class="q-number" id="qNumber">QUESTION 001</div></div>
       <div class="question-content"><h2 id="questionTitle"></h2><p class="context" id="questionContext"></p><div id="codeWrap" class="code-wrap hidden"><div class="code-top"><span></span> C <span style="margin-left:auto;width:auto;height:auto;background:none;border-radius:0">main.c</span></div><pre id="codeText"></pre></div><p class="source" id="source"></p></div>
       <div class="answer-area">
         <p class="answer-title" id="answerLabel">정답을 선택해 봐</p>
@@ -165,6 +166,7 @@ const pick = xs => xs[Math.floor(Math.random()*xs.length)];
 const shuffle = xs => { const a=[...xs]; for(let i=a.length-1;i>0;i--){const j=rand(0,i); [a[i],a[j]]=[a[j],a[i]];} return a; };
 const categoryNames={io:'입출력·자료형',array:'배열·문자열',op:'연산자',branch:'선택문',loop:'반복문'};
 const kindNames={mc:'5지선다 개념',blank:'코드 빈칸',output:'실행 결과'};
+const difficultyNames={basic:'기초',intermediate:'중급',hard:'심화'};
 const bank=[];
 function add(cat,kind,source,make,difficulty='basic'){bank.push({id:bank.length,cat,kind,source,make,difficulty});}
 function mc(title, options, right, explanation, tip=''){
@@ -364,6 +366,1285 @@ addHard('loop','output','12~13차시 응용 · 상태 변화와 continue 추적'
   '9 3','n은 23 → 20 → 10 → 5 → 2 → 1 → -2로 변한다. 짝수에서는 n을 2로 나눈 뒤 continue하므로 total과 steps는 바뀌지 않는다. 홀수인 23,5,1의 마지막 자리 3,5,1만 더해 total=9이고, 홀수 처리를 세 번 하므로 steps=3이다.'
 ));
 
+
+
+// One hundred additional exercises, appended to keep saved question IDs stable.
+const ADDITIONAL_100=[
+  {
+    "cat": "io",
+    "difficulty": "basic",
+    "kind": "mc",
+    "title": "실수 출력에서 %.1f가 의미하는 것으로 옳은 것은?",
+    "code": "int main(void) {\n    double t = 3.26;\n    printf(\"%.1f\", t);\n    return 0;\n}",
+    "answer": "소수점 아래 한 자리까지 실수로 출력한다",
+    "explanation": "%.1f의 .1은 소수점 아래 자리 수를 뜻한다. 3.26을 한 자리로 표시하면 반올림하여 3.3이다.",
+    "source": "기초 추가 연습 · 입출력·자료형",
+    "choices": [
+      "소수점 아래 한 자리까지 실수로 출력한다",
+      "정수 한 자리만 출력한다",
+      "문자 한 개를 출력한다",
+      "소수점 아래 숫자를 모두 버린다",
+      "실수 입력을 한 번 받는다"
+    ]
+  },
+  {
+    "cat": "io",
+    "difficulty": "basic",
+    "kind": "mc",
+    "title": "두 정수를 입력받는 scanf에서 &a와 &b가 필요한 이유는?",
+    "code": "int main(void) {\n    int a, b;\n    scanf(\"%d %d\", &a, &b);\n    printf(\"%d\", a + b);\n    return 0;\n}",
+    "answer": "입력값을 저장할 두 변수의 주소를 전달하기 위해",
+    "explanation": "scanf는 값을 써 넣을 저장 위치가 필요하다. &a, &b로 각 정수 변수의 주소를 전달하며, 입력 8과 3의 합은 11이다.",
+    "source": "기초 추가 연습 · 입출력·자료형",
+    "context": "입력: 8 3",
+    "choices": [
+      "입력값을 저장할 두 변수의 주소를 전달하기 위해",
+      "두 변수의 값을 더하기 위해",
+      "정수를 실수로 바꾸기 위해",
+      "입력받을 글자 수를 제한하기 위해",
+      "a와 b의 값이 같은지 비교하기 위해"
+    ]
+  },
+  {
+    "cat": "io",
+    "difficulty": "basic",
+    "kind": "mc",
+    "title": "숫자 문자에서 문자 '0'을 뺀 결과에 대한 설명으로 옳은 것은?",
+    "code": "int main(void) {\n    char digit = '7';\n    printf(\"%d\", digit - '0');\n    return 0;\n}",
+    "answer": "문자 7에 해당하는 정수값 7을 구한다",
+    "explanation": "숫자 문자 0부터 9까지의 코드값은 연속이다. 따라서 digit에서 문자 0의 코드값을 빼면 해당 숫자의 정수값인 7을 얻는다.",
+    "source": "기초 추가 연습 · 입출력·자료형",
+    "choices": [
+      "문자 7에 해당하는 정수값 7을 구한다",
+      "문자열의 길이 1을 구한다",
+      "항상 0이 된다",
+      "문자 0을 출력한다",
+      "숫자 문자에는 뺄셈을 할 수 없다"
+    ]
+  },
+  {
+    "cat": "io",
+    "difficulty": "basic",
+    "kind": "blank",
+    "title": "A와 B를 서로 다른 줄에 출력하도록 줄바꿈 이스케이프 시퀀스를 쓰시오.",
+    "code": "int main(void) {\n    printf(\"A_____B\");\n    return 0;\n}",
+    "answer": "\\n",
+    "explanation": "문자열 안의 \\n은 줄바꿈을 뜻한다. A를 출력한 뒤 다음 줄에서 B를 출력한다.",
+    "source": "기초 추가 연습 · 입출력·자료형",
+    "accepted": []
+  },
+  {
+    "cat": "io",
+    "difficulty": "basic",
+    "kind": "blank",
+    "title": "unsigned int 변수를 10진수로 입력받는 형식 지정자를 쓰시오.",
+    "code": "int main(void) {\n    unsigned int n;\n    scanf(\"_____\", &n);\n    printf(\"%u\", n + 1u);\n    return 0;\n}",
+    "answer": "%u",
+    "explanation": "unsigned int를 10진수로 입력받는 지정자는 %u이다. 12가 입력되면 1을 더한 13을 출력한다.",
+    "source": "기초 추가 연습 · 입출력·자료형",
+    "context": "입력: 12",
+    "accepted": []
+  },
+  {
+    "cat": "io",
+    "difficulty": "basic",
+    "kind": "output",
+    "title": "큰따옴표와 역슬래시 이스케이프를 해석해 출력 내용을 쓰시오.",
+    "code": "int main(void) {\n    printf(\"\\\"C\\\"\\\\path\");\n    return 0;\n}",
+    "answer": "\"C\"\\path",
+    "explanation": "\\\"는 큰따옴표 한 개, \\\\는 역슬래시 한 개를 출력한다. 따라서 큰따옴표로 감싼 C 다음에 역슬래시와 path가 이어진다.",
+    "source": "기초 추가 연습 · 입출력·자료형"
+  },
+  {
+    "cat": "io",
+    "difficulty": "basic",
+    "kind": "output",
+    "title": "변수 값을 복사한 뒤 원래 변수를 바꾸면 무엇이 출력되는가?",
+    "code": "int main(void) {\n    int n = 4;\n    int m = n;\n    n = 9;\n    printf(\"%d %d\", m, n);\n    return 0;\n}",
+    "answer": "4 9",
+    "explanation": "m=n은 그 시점의 값 4를 복사한다. 이후 n을 9로 바꾸어도 m의 값은 4로 남는다.",
+    "source": "기초 추가 연습 · 입출력·자료형"
+  },
+  {
+    "cat": "io",
+    "difficulty": "intermediate",
+    "kind": "mc",
+    "title": "입력 중 숫자로 바꿀 수 없는 문자를 만나면 scanf의 반환값과 변수는 어떻게 되는가?",
+    "code": "int main(void) {\n    int a = -1, b = -1;\n    int r = scanf(\"%d %d\", &a, &b);\n    printf(\"%d %d %d\", r, a, b);\n    return 0;\n}",
+    "answer": "첫 정수만 저장하고 1을 반환하며 b는 -1로 남는다",
+    "explanation": "첫 변환은 12를 a에 저장하지만 다음 X는 정수로 바꿀 수 없다. 성공한 대입은 한 번이므로 r=1이고, b의 초기값 -1은 유지된다.",
+    "source": "중급 추가 연습 · 입출력·자료형",
+    "context": "입력: 12 X",
+    "choices": [
+      "첫 정수만 저장하고 1을 반환하며 b는 -1로 남는다",
+      "문자 X를 정수 0으로 바꾸고 2를 반환한다",
+      "실패하면 a도 -1로 되돌린다",
+      "두 변수 모두 0이 된다",
+      "컴파일 오류가 발생한다"
+    ]
+  },
+  {
+    "cat": "io",
+    "difficulty": "intermediate",
+    "kind": "mc",
+    "title": "음수의 정수 나눗셈과 실수 나눗셈을 비교한 설명으로 옳은 것은?",
+    "code": "int main(void) {\n    int a = -7, b = 2;\n    printf(\"%d %.1f\", a / b, (double)a / b);\n    return 0;\n}",
+    "answer": "정수 몫은 0 방향으로 버려 -3이고 실수 결과는 -3.5이다",
+    "explanation": "C의 정수 나눗셈은 소수 부분을 0 방향으로 버린다. -7/2는 -3이고, a를 double로 바꾼 뒤 나누면 -3.5이다.",
+    "source": "중급 추가 연습 · 입출력·자료형",
+    "choices": [
+      "정수 몫은 0 방향으로 버려 -3이고 실수 결과는 -3.5이다",
+      "정수 몫은 항상 내림하므로 -4이다",
+      "두 결과 모두 -3.5이다",
+      "두 결과 모두 -4이다",
+      "음수는 나눗셈할 수 없다"
+    ]
+  },
+  {
+    "cat": "io",
+    "difficulty": "intermediate",
+    "kind": "blank",
+    "title": "정수와 문자를 순서대로 입력받도록 문자 변수 ch의 주소를 쓰시오.",
+    "code": "int main(void) {\n    int n;\n    char ch;\n    scanf(\"%d %c\", &n, _____);\n    printf(\"%d %c\", n, ch);\n    return 0;\n}",
+    "answer": "&ch",
+    "explanation": "ch에 입력값을 저장하려면 주소 &ch를 전달한다. 형식 문자열에서 %c 앞의 공백은 앞서 남은 줄바꿈 등의 공백 문자를 건너뛴다.",
+    "source": "중급 추가 연습 · 입출력·자료형",
+    "context": "첫 줄 입력: 7 / 둘째 줄 입력: M",
+    "accepted": []
+  },
+  {
+    "cat": "io",
+    "difficulty": "intermediate",
+    "kind": "blank",
+    "title": "세 자리 정수에서 백의 자리를 제외한 나머지를 %를 사용해 구하시오.",
+    "code": "int main(void) {\n    int n = 583;\n    int h = n / 100;\n    int rest = _____;\n    printf(\"%d %02d\", h, rest);\n    return 0;\n}",
+    "answer": "n % 100",
+    "explanation": "100으로 나눈 나머지는 마지막 두 자리다. 583/100은 5이고 583%100은 83이므로 5 83을 출력한다.",
+    "source": "중급 추가 연습 · 입출력·자료형",
+    "accepted": []
+  },
+  {
+    "cat": "io",
+    "difficulty": "intermediate",
+    "kind": "blank",
+    "title": "double 변수의 주소에 맞는 scanf 형식 지정자를 쓰시오.",
+    "code": "int main(void) {\n    double x;\n    scanf(\"_____\", &x);\n    printf(\"%.2f\", x / 2);\n    return 0;\n}",
+    "answer": "%lf",
+    "explanation": "scanf에서 double*에 대응하는 실수 입력 지정자는 %lf이다. 7.5를 읽어 2로 나누면 3.75이다. printf의 실수 출력과 scanf의 입력 지정자를 구분해야 한다.",
+    "source": "중급 추가 연습 · 입출력·자료형",
+    "context": "입력: 7.5",
+    "accepted": []
+  },
+  {
+    "cat": "io",
+    "difficulty": "intermediate",
+    "kind": "output",
+    "title": "같은 덧셈식 안에서 정수 나눗셈과 실수 나눗셈이 함께 쓰이면 무엇이 출력되는가?",
+    "code": "int main(void) {\n    double x = (5 / 2) + (5 / 2.0);\n    printf(\"%.1f\", x);\n    return 0;\n}",
+    "answer": "4.5",
+    "explanation": "5/2는 두 정수의 나눗셈이므로 2다. 5/2.0은 실수 나눗셈이므로 2.5이고, 두 결과를 더하면 4.5다.",
+    "source": "중급 추가 연습 · 입출력·자료형"
+  },
+  {
+    "cat": "io",
+    "difficulty": "intermediate",
+    "kind": "output",
+    "title": "출력 폭 6과 소수 두 자리 지정이 적용된 대괄호 안의 내용을 쓰시오.",
+    "code": "int main(void) {\n    printf(\"[%*.*f]\", 6, 2, 2.5);\n    return 0;\n}",
+    "answer": "[  2.50]",
+    "explanation": "*로 지정한 폭은 6, 정밀도는 2다. 2.50은 네 글자이므로 앞에 공백 두 칸을 채워 오른쪽 정렬한다. 대괄호 안에 공백 두 칸과 2.50이 들어간다.",
+    "source": "중급 추가 연습 · 입출력·자료형"
+  },
+  {
+    "cat": "io",
+    "difficulty": "intermediate",
+    "kind": "output",
+    "title": "콜론을 포함한 형식 문자열로 읽은 시간을 분으로 바꾼 출력값을 쓰시오.",
+    "code": "int main(void) {\n    int h, m;\n    scanf(\"%d:%d\", &h, &m);\n    printf(\"%d\", h * 60 + m);\n    return 0;\n}",
+    "answer": "155",
+    "explanation": "형식 문자열의 콜론은 입력의 콜론과 대응한다. h=2, m=35가 저장되고 2×60+35=155분이다.",
+    "source": "중급 추가 연습 · 입출력·자료형",
+    "context": "입력: 2:35"
+  },
+  {
+    "cat": "io",
+    "difficulty": "hard",
+    "kind": "mc",
+    "title": "scanf의 필드 폭을 정수에 지정했을 때 남는 입력에 대한 설명으로 옳은 것은?",
+    "code": "int main(void) {\n    int a, b;\n    char c;\n    scanf(\"%2d%2d\", &a, &b);\n    scanf(\"%c\", &c);\n    printf(\"%d %d %c\", a, b, c);\n    return 0;\n}",
+    "answer": "각 정수는 최대 두 글자씩 읽고 남은 문자 5를 c가 읽는다",
+    "explanation": "첫 %2d는 12, 둘째 %2d는 34까지만 읽는다. 아직 읽지 않은 5가 남아 있으므로 뒤의 %c가 그 문자를 읽는다.",
+    "source": "심화 추가 연습 · 입출력·자료형",
+    "context": "입력: 12345",
+    "choices": [
+      "각 정수는 최대 두 글자씩 읽고 남은 문자 5를 c가 읽는다",
+      "필드 폭은 출력에만 적용되어 a가 12345가 된다",
+      "두 정수 사이에 공백이 없어 변환이 실패한다",
+      "마지막 5는 자동으로 버린다",
+      "c에는 항상 줄바꿈이 저장된다"
+    ]
+  },
+  {
+    "cat": "io",
+    "difficulty": "hard",
+    "kind": "blank",
+    "title": "양수 n/d를 가장 가까운 정수로 반올림하려 한다. 빈칸에는 d를 2로 나눈 정수 몫을 / 연산자로 쓰시오.",
+    "code": "int main(void) {\n    int n = 38, d = 5;\n    int rounded = (n + _____) / d;\n    printf(\"%d\", rounded);\n    return 0;\n}",
+    "answer": "d / 2",
+    "explanation": "양수의 몫을 반올림할 때 나누기 전에 분모의 절반만큼 보정한다. d/2는 2이므로 (38+2)/5=8이다. 이 문제의 작은 양수에서는 덧셈 오버플로도 없다.",
+    "source": "심화 추가 연습 · 입출력·자료형",
+    "accepted": []
+  },
+  {
+    "cat": "io",
+    "difficulty": "hard",
+    "kind": "output",
+    "title": "scanf의 대입 억제 %*d가 반환 개수에 포함되는지 따져 출력하시오.",
+    "code": "int main(void) {\n    int a, b;\n    int count = scanf(\"%d%*d%d\", &a, &b);\n    printf(\"%d %d %d\", count, a, b);\n    return 0;\n}",
+    "answer": "2 10 30",
+    "explanation": "가운데 %*d는 20을 읽고 버리며 변수에 대입하지 않는다. 반환값은 대입에 성공한 두 항목만 세므로 2이고 a=10, b=30이다.",
+    "source": "심화 추가 연습 · 입출력·자료형",
+    "context": "입력: 10 20 30"
+  },
+  {
+    "cat": "io",
+    "difficulty": "hard",
+    "kind": "output",
+    "title": "문자열 폭 제한 뒤의 정수 변환이 실패할 때, 초기값까지 고려해 출력하시오.",
+    "code": "int main(void) {\n    char s[4] = \"\";\n    int n = -1;\n    char ch = '?';\n    int r = scanf(\"%3s%2d%c\", s, &n, &ch);\n    printf(\"%d %s %d %c\", r, s, n, ch);\n    return 0;\n}",
+    "answer": "1 ABC -1 ?",
+    "explanation": "%3s가 ABC까지만 읽으므로 다음 입력은 D다. D에서 %2d 변환이 실패하고 scanf는 뒤의 %c도 진행하지 않는다. r=1, s는 ABC이며 n=-1, ch=?가 유지된다.",
+    "source": "심화 추가 연습 · 입출력·자료형",
+    "context": "입력: ABCD42!"
+  },
+  {
+    "cat": "io",
+    "difficulty": "hard",
+    "kind": "output",
+    "title": "같은 010을 %i와 %d로 읽으면 어떤 값이 저장되는지 출력하시오.",
+    "code": "int main(void) {\n    int a, b;\n    scanf(\"%i %d\", &a, &b);\n    printf(\"%d %d %d\", a, b, a + b);\n    return 0;\n}",
+    "answer": "8 10 18",
+    "explanation": "%i는 접두부로 진법을 판단하여 앞에 0이 붙은 010을 8진수 8로 읽는다. %d는 10진수로 읽으므로 두 번째 010은 10이다. 합계는 18이다.",
+    "source": "심화 추가 연습 · 입출력·자료형",
+    "context": "입력: 010 010"
+  },
+  {
+    "cat": "array",
+    "difficulty": "basic",
+    "kind": "mc",
+    "title": "문자열로 초기화한 문자 배열의 실제 원소 수에 대한 설명으로 옳은 것은?",
+    "code": "int main(void) {\n    char s[] = \"CAT\";\n    printf(\"%d\", (int)(sizeof(s) / sizeof(s[0])));\n    return 0;\n}",
+    "answer": "끝의 널 문자를 포함하여 원소는 4개다",
+    "explanation": "문자열로 초기화하면 C, A, T 다음에 널 문자 한 개가 자동으로 들어간다. char 한 원소의 크기는 1바이트이므로 원소 수는 4다.",
+    "source": "기초 추가 연습 · 배열·문자열",
+    "choices": [
+      "끝의 널 문자를 포함하여 원소는 4개다",
+      "눈에 보이는 세 글자만 있으므로 원소는 3개다",
+      "배열의 원소 수는 항상 8개다",
+      "널 문자만 원소로 세므로 1개다",
+      "크기를 생략했으므로 컴파일 오류다"
+    ]
+  },
+  {
+    "cat": "array",
+    "difficulty": "basic",
+    "kind": "mc",
+    "title": "배열의 일부만 초기화했을 때 나머지 원소에 대한 설명으로 옳은 것은?",
+    "code": "int main(void) {\n    int a[4] = {5};\n    printf(\"%d %d\", a[0], a[3]);\n    return 0;\n}",
+    "answer": "첫 원소는 5이고 나머지 원소는 0으로 초기화된다",
+    "explanation": "초기화 목록이 배열 크기보다 짧으면 지정하지 않은 나머지 원소는 0으로 초기화된다. 따라서 a[0]=5, a[3]=0이다.",
+    "source": "기초 추가 연습 · 배열·문자열",
+    "choices": [
+      "첫 원소는 5이고 나머지 원소는 0으로 초기화된다",
+      "모든 원소가 5가 된다",
+      "나머지 원소는 반드시 임의의 값이 된다",
+      "첫 원소는 0이고 마지막 원소는 5다",
+      "초기값 개수가 부족해 컴파일되지 않는다"
+    ]
+  },
+  {
+    "cat": "array",
+    "difficulty": "basic",
+    "kind": "mc",
+    "title": "a[1]을 바꾼 뒤의 배열에 대한 설명으로 옳은 것은?",
+    "code": "int main(void) {\n    int a[3] = {1, 2, 3};\n    a[1] = a[0] + a[2];\n    printf(\"%d\", a[1]);\n    return 0;\n}",
+    "answer": "두 번째 원소가 첫 번째와 세 번째 원소의 합인 4가 된다",
+    "explanation": "인덱스 1은 두 번째 원소다. a[0]+a[2]=1+3=4를 a[1]에 저장한다.",
+    "source": "기초 추가 연습 · 배열·문자열",
+    "choices": [
+      "두 번째 원소가 첫 번째와 세 번째 원소의 합인 4가 된다",
+      "첫 번째 원소가 4가 된다",
+      "모든 원소가 4가 된다",
+      "두 번째 원소는 바뀌지 않고 2다",
+      "배열 원소끼리는 더할 수 없다"
+    ]
+  },
+  {
+    "cat": "array",
+    "difficulty": "basic",
+    "kind": "blank",
+    "title": "길이가 n인 배열의 마지막 원소 인덱스를 n과 뺄셈으로 쓰시오.",
+    "code": "int main(void) {\n    int a[4] = {6, 7, 8, 9};\n    int n = 4;\n    printf(\"%d\", a[_____]);\n    return 0;\n}",
+    "answer": "n - 1",
+    "explanation": "배열의 첫 인덱스는 0이므로 마지막 인덱스는 원소 수보다 1 작은 n-1이다. a[3]에 저장된 9를 출력한다.",
+    "source": "기초 추가 연습 · 배열·문자열",
+    "accepted": []
+  },
+  {
+    "cat": "array",
+    "difficulty": "basic",
+    "kind": "blank",
+    "title": "문자열의 끝을 판별하는 널 문자 상수를 작은따옴표까지 포함해 쓰시오.",
+    "code": "int main(void) {\n    char s[] = \"NOTE\";\n    int len = 0;\n    while (s[len] != _____) len++;\n    printf(\"%d\", len);\n    return 0;\n}",
+    "answer": "'\\0'",
+    "explanation": "널 종료 문자 \\0을 만날 때까지 len을 증가시킨다. NOTE는 네 글자이므로 인덱스 4의 널 문자에서 멈추고 4를 출력한다.",
+    "source": "기초 추가 연습 · 배열·문자열",
+    "accepted": []
+  },
+  {
+    "cat": "array",
+    "difficulty": "basic",
+    "kind": "output",
+    "title": "배열 원소끼리 값을 계산하여 대입한 뒤 출력되는 세 수를 쓰시오.",
+    "code": "int main(void) {\n    int a[3] = {3, 5, 0};\n    a[2] = a[0] + a[1];\n    a[0] = a[2] - a[1];\n    printf(\"%d %d %d\", a[0], a[1], a[2]);\n    return 0;\n}",
+    "answer": "3 5 8",
+    "explanation": "먼저 a[2]가 3+5=8로 바뀐다. 다음 a[0]은 바뀐 a[2]를 사용하여 8-5=3이 되며 a[1]은 5 그대로다.",
+    "source": "기초 추가 연습 · 배열·문자열"
+  },
+  {
+    "cat": "array",
+    "difficulty": "basic",
+    "kind": "output",
+    "title": "문자열의 한 원소를 바꾼 뒤 문자 출력과 문자열 출력을 구분하여 쓰시오.",
+    "code": "int main(void) {\n    char s[5] = \"CODE\";\n    s[1] = 'A';\n    printf(\"%c %s\", s[3], s);\n    return 0;\n}",
+    "answer": "E CADE",
+    "explanation": "인덱스 1의 O를 A로 바꾸어 문자열은 CADE가 된다. s[3]은 마지막 글자인 E이고, 뒤의 %s는 CADE 전체를 출력한다.",
+    "source": "기초 추가 연습 · 배열·문자열"
+  },
+  {
+    "cat": "array",
+    "difficulty": "intermediate",
+    "kind": "mc",
+    "title": "2차원 배열에서 행마다 초기값이 부족한 경우의 설명으로 옳은 것은?",
+    "code": "int main(void) {\n    int a[2][3] = {{1, 2}, {3}};\n    printf(\"%d %d %d\", a[0][2], a[1][0], a[1][2]);\n    return 0;\n}",
+    "answer": "첫 행은 {1,2,0}, 둘째 행은 {3,0,0}으로 채워진다",
+    "explanation": "중괄호가 각 행을 나누므로 첫 행의 부족한 원소는 0이고 둘째 행도 나머지가 0이다. 선택한 세 원소는 순서대로 0, 3, 0이다.",
+    "source": "중급 추가 연습 · 배열·문자열",
+    "choices": [
+      "첫 행은 {1,2,0}, 둘째 행은 {3,0,0}으로 채워진다",
+      "전체가 {1,2,3,0,0,0} 순서로만 채워진다",
+      "둘째 행의 모든 원소가 3이 된다",
+      "첫 행의 마지막 원소가 3이다",
+      "부족한 원소는 이전 행 값을 복사한다"
+    ]
+  },
+  {
+    "cat": "array",
+    "difficulty": "intermediate",
+    "kind": "mc",
+    "title": "문자열의 기존 널 문자를 다른 글자로 덮어쓸 때 이 코드가 안전하게 끝나는 이유는?",
+    "code": "int main(void) {\n    char s[6] = \"AB\";\n    s[2] = 'C';\n    s[3] = '\\0';\n    printf(\"%s\", s);\n    return 0;\n}",
+    "answer": "새 끝 위치 s[3]에 널 문자를 두어 ABC로 끝나게 했기 때문",
+    "explanation": "원래 s[2]의 널 문자를 C로 바꾸고 s[3]에 새 널 문자를 지정했다. %s는 새 끝까지 읽어 ABC를 출력한다.",
+    "source": "중급 추가 연습 · 배열·문자열",
+    "choices": [
+      "새 끝 위치 s[3]에 널 문자를 두어 ABC로 끝나게 했기 때문",
+      "문자 배열은 널 문자가 없어도 길이를 기억하기 때문",
+      "%s가 항상 두 글자만 출력하기 때문",
+      "문자 C가 자동으로 종료 문자로 취급되기 때문",
+      "s[2]를 바꿔도 기존 널 문자가 남기 때문"
+    ]
+  },
+  {
+    "cat": "array",
+    "difficulty": "intermediate",
+    "kind": "blank",
+    "title": "target과 같은 첫 번째 원소의 위치만 저장하려 한다. 해당 위치를 찾은 즉시 for문을 끝내는 문장을 쓰시오.",
+    "code": "int main(void) {\n    int a[4] = {3, 7, 3, 9}, target = 3, pos = -1;\n    for (int i = 0; i < 4; i++) {\n        if (a[i] == target) {\n            pos = i;\n            _____;\n        }\n    }\n    printf(\"%d\", pos);\n    return 0;\n}",
+    "answer": "break",
+    "explanation": "첫 일치 위치 0을 저장한 뒤 break로 종료해야 뒤의 같은 값에서 pos가 덮어써지지 않는다. continue는 다음 원소도 검사하므로 첫 위치를 보장하지 않는다.",
+    "source": "중급 추가 연습 · 배열·문자열",
+    "accepted": [
+      "break;"
+    ]
+  },
+  {
+    "cat": "array",
+    "difficulty": "intermediate",
+    "kind": "blank",
+    "title": "0은 제외하고 양수인 배열 원소만 더하도록 비교 연산자를 쓰시오.",
+    "code": "int main(void) {\n    int a[4] = {-3, 0, 2, 5}, sum = 0;\n    for (int i = 0; i < 4; i++)\n        if (a[i] _____ 0) sum += a[i];\n    printf(\"%d\", sum);\n    return 0;\n}",
+    "answer": ">",
+    "explanation": "양수는 0보다 큰 수이므로 >를 쓴다. 2와 5만 더하여 합계는 7이다. 0은 양수가 아니다.",
+    "source": "중급 추가 연습 · 배열·문자열",
+    "accepted": []
+  },
+  {
+    "cat": "array",
+    "difficulty": "intermediate",
+    "kind": "blank",
+    "title": "i행의 모든 열 값을 더하도록 배열 원소 표현식을 쓰시오.",
+    "code": "int main(void) {\n    int a[2][3] = {{1, 2, 3}, {4, 5, 6}}, best = 0;\n    for (int i = 0; i < 2; i++) {\n        int rowSum = 0;\n        for (int j = 0; j < 3; j++) rowSum += _____;\n        if (rowSum > best) best = rowSum;\n    }\n    printf(\"%d\", best);\n    return 0;\n}",
+    "answer": "a[i][j]",
+    "explanation": "i가 행, j가 열이므로 a[i][j]를 더한다. 행 합계는 6과 15다. 각 행을 시작할 때 rowSum을 0으로 다시 만들고, 더 큰 합계 15를 best에 보관한다.",
+    "source": "중급 추가 연습 · 배열·문자열",
+    "accepted": []
+  },
+  {
+    "cat": "array",
+    "difficulty": "intermediate",
+    "kind": "output",
+    "title": "배열을 오른쪽으로 한 칸 회전한 최종 원소들을 쓰시오.",
+    "code": "int main(void) {\n    int a[5] = {1, 2, 3, 4, 5};\n    int last = a[4];\n    for (int i = 4; i > 0; i--) a[i] = a[i - 1];\n    a[0] = last;\n    for (int i = 0; i < 5; i++) printf(\"%d \", a[i]);\n    return 0;\n}",
+    "answer": "5 1 2 3 4",
+    "explanation": "뒤에서 앞으로 복사해야 아직 사용하지 않은 값을 덮어쓰지 않는다. 마지막 값 5를 따로 보관한 뒤 맨 앞에 넣어 5,1,2,3,4가 된다.",
+    "source": "중급 추가 연습 · 배열·문자열"
+  },
+  {
+    "cat": "array",
+    "difficulty": "intermediate",
+    "kind": "output",
+    "title": "배열 값을 인덱스로 사용해 센 빈도표의 출력 결과를 쓰시오.",
+    "code": "int main(void) {\n    int a[6] = {2, 3, 2, 4, 3, 2};\n    int f[5] = {0};\n    for (int i = 0; i < 6; i++) f[a[i]]++;\n    for (int i = 2; i <= 4; i++) printf(\"%d:%d \", i, f[i]);\n    return 0;\n}",
+    "answer": "2:3 3:2 4:1",
+    "explanation": "2는 세 번, 3은 두 번, 4는 한 번 등장한다. f[a[i]]에서 배열 값 자체를 빈도표의 인덱스로 쓰며, 출력은 2부터 4까지의 순서다.",
+    "source": "중급 추가 연습 · 배열·문자열"
+  },
+  {
+    "cat": "array",
+    "difficulty": "intermediate",
+    "kind": "output",
+    "title": "문자열에서 영문 대문자만 센 결과를 쓰시오. 문자 코드는 ASCII를 가정한다.",
+    "code": "int main(void) {\n    char s[] = \"aB3Cd\";\n    int count = 0;\n    for (int i = 0; s[i] != '\\0'; i++)\n        if (s[i] >= 'A' && s[i] <= 'Z') count++;\n    printf(\"%d\", count);\n    return 0;\n}",
+    "answer": "2",
+    "explanation": "범위 A부터 Z에 속하는 글자는 B와 C다. 소문자 a,d와 숫자 3은 제외하므로 2가 된다.",
+    "source": "중급 추가 연습 · 배열·문자열"
+  },
+  {
+    "cat": "array",
+    "difficulty": "hard",
+    "kind": "mc",
+    "title": "열을 바깥 반복으로 채우는 2차원 배열에서 두 원소의 값은 어떻게 결정되는가?",
+    "code": "int main(void) {\n    int a[2][3], k = 1;\n    for (int j = 0; j < 3; j++)\n        for (int i = 0; i < 2; i++) a[i][j] = k++;\n    printf(\"%d %d\", a[0][2], a[1][0]);\n    return 0;\n}",
+    "answer": "열별로 1,2 / 3,4 / 5,6을 채우므로 5와 2다",
+    "explanation": "안쪽 i가 행을 먼저 바꾼다. 최종 두 행은 {1,3,5}, {2,4,6}이고 a[0][2]=5, a[1][0]=2다.",
+    "source": "심화 추가 연습 · 배열·문자열",
+    "choices": [
+      "열별로 1,2 / 3,4 / 5,6을 채우므로 5와 2다",
+      "행별로 채우므로 3과 4다",
+      "모든 원소가 마지막 k값인 7이다",
+      "같은 열은 같은 값이므로 3과 1이다",
+      "초기화하지 않은 배열에는 대입할 수 없다"
+    ]
+  },
+  {
+    "cat": "array",
+    "difficulty": "hard",
+    "kind": "blank",
+    "title": "target과 다른 원소만 앞쪽으로 모으되 순서를 유지하려 한다. 복사할 원소를 a와 i로 쓰시오.",
+    "code": "int main(void) {\n    int a[5] = {2, 1, 2, 3, 2}, target = 2, write = 0;\n    for (int i = 0; i < 5; i++)\n        if (a[i] != target) a[write++] = _____;\n    for (int i = 0; i < write; i++) printf(\"%d \", a[i]);\n    return 0;\n}",
+    "answer": "a[i]",
+    "explanation": "검사 중인 a[i]가 target과 다를 때만 쓰기 위치로 복사한다. write는 남긴 원소 수이며 읽기 위치보다 앞서지 않아 이후 입력을 망가뜨리지 않는다. 남는 원소는 1,3이다.",
+    "source": "심화 추가 연습 · 배열·문자열",
+    "accepted": []
+  },
+  {
+    "cat": "array",
+    "difficulty": "hard",
+    "kind": "output",
+    "title": "버블 정렬의 바깥 반복 없이 한 번만 훑었을 때 배열 전체를 쓰시오.",
+    "code": "int main(void) {\n    int a[5] = {5, 1, 4, 2, 3};\n    for (int i = 0; i < 4; i++) {\n        if (a[i] > a[i + 1]) {\n            int t = a[i]; a[i] = a[i + 1]; a[i + 1] = t;\n        }\n    }\n    for (int i = 0; i < 5; i++) printf(\"%d \", a[i]);\n    return 0;\n}",
+    "answer": "1 4 2 3 5",
+    "explanation": "가장 큰 값 5가 인접 교환을 거쳐 맨 뒤로 이동한다. 한 번만 훑었으므로 나머지 원소까지 완전히 정렬되지는 않는다. 최종 배열은 1,4,2,3,5다.",
+    "source": "심화 추가 연습 · 배열·문자열"
+  },
+  {
+    "cat": "array",
+    "difficulty": "hard",
+    "kind": "output",
+    "title": "3×3 배열을 90도 시계 방향으로 돌려 읽는 출력 결과를 줄 단위로 쓰시오.",
+    "code": "int main(void) {\n    int a[3][3] = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};\n    for (int i = 0; i < 3; i++) {\n        for (int j = 0; j < 3; j++) printf(\"%d \", a[2 - j][i]);\n        printf(\"\\n\");\n    }\n    return 0;\n}",
+    "answer": "7 4 1\n8 5 2\n9 6 3",
+    "explanation": "출력 한 행에서 원래 배열의 같은 열을 아래에서 위로 읽는다. i=0에서 7,4,1, i=1에서 8,5,2, i=2에서 9,6,3을 출력한다.",
+    "source": "심화 추가 연습 · 배열·문자열"
+  },
+  {
+    "cat": "array",
+    "difficulty": "hard",
+    "kind": "output",
+    "title": "연속해서 같은 값이 나오는 구간을 값:개수로 압축한 출력을 쓰시오.",
+    "code": "int main(void) {\n    int a[6] = {1, 1, 2, 2, 2, 1}, count = 1;\n    for (int i = 1; i <= 6; i++) {\n        if (i < 6 && a[i] == a[i - 1]) count++;\n        else {\n            printf(\"%d:%d \", a[i - 1], count);\n            count = 1;\n        }\n    }\n    return 0;\n}",
+    "answer": "1:2 2:3 1:1",
+    "explanation": "연속된 구간은 1 두 개, 2 세 개, 1 한 개다. i=6에서는 i<6이 거짓이므로 a[6]을 읽지 않고 마지막 구간을 출력한다. 같은 숫자라도 떨어진 구간은 합치지 않는다.",
+    "source": "심화 추가 연습 · 배열·문자열"
+  },
+  {
+    "cat": "op",
+    "difficulty": "basic",
+    "kind": "mc",
+    "title": "17을 5로 나눈 몫과 나머지에 대한 설명으로 옳은 것은?",
+    "code": "int main(void) {\n    printf(\"%d %d\", 17 / 5, 17 % 5);\n    return 0;\n}",
+    "answer": "몫은 3이고 나머지는 2다",
+    "explanation": "정수 나눗셈은 정수 몫을 구하고 %는 나머지를 구한다. 17=5×3+2이므로 3과 2다.",
+    "source": "기초 추가 연습 · 연산자",
+    "choices": [
+      "몫은 3이고 나머지는 2다",
+      "몫은 3.4이고 나머지는 0이다",
+      "몫은 2이고 나머지는 3이다",
+      "몫과 나머지는 모두 3이다",
+      "%는 실수 나눗셈 연산자다"
+    ]
+  },
+  {
+    "cat": "op",
+    "difficulty": "basic",
+    "kind": "mc",
+    "title": "음수에 논리 NOT을 적용했을 때 옳은 설명은?",
+    "code": "int main(void) {\n    int n = -3;\n    printf(\"%d\", !n);\n    return 0;\n}",
+    "answer": "-3도 0이 아니므로 참이며 !n의 값은 0이다",
+    "explanation": "C의 논리 판단에서는 0만 거짓이고 모든 비0 값은 참이다. 따라서 참인 -3을 논리 NOT으로 뒤집으면 0이다.",
+    "source": "기초 추가 연습 · 연산자",
+    "choices": [
+      "-3도 0이 아니므로 참이며 !n의 값은 0이다",
+      "음수는 거짓이므로 !n은 1이다",
+      "!는 부호를 바꾸므로 3이다",
+      "!는 절댓값을 구하므로 3이다",
+      "!는 음수에 사용할 수 없다"
+    ]
+  },
+  {
+    "cat": "op",
+    "difficulty": "basic",
+    "kind": "mc",
+    "title": "비교식 a<b를 정수 변수에 대입할 때 저장되는 값에 대한 설명으로 옳은 것은?",
+    "code": "int main(void) {\n    int a = 3, b = 4;\n    int x = a < b;\n    printf(\"%d\", x);\n    return 0;\n}",
+    "answer": "비교가 참이므로 1이 저장된다",
+    "explanation": "비교 연산의 결과는 참이면 1, 거짓이면 0이다. 3<4는 참이므로 x는 1이다.",
+    "source": "기초 추가 연습 · 연산자",
+    "choices": [
+      "비교가 참이므로 1이 저장된다",
+      "a-b인 -1이 저장된다",
+      "더 작은 값 3이 저장된다",
+      "더 큰 값 4가 저장된다",
+      "비교식은 변수에 대입할 수 없다"
+    ]
+  },
+  {
+    "cat": "op",
+    "difficulty": "basic",
+    "kind": "blank",
+    "title": "n에 3을 곱해 다시 저장하는 복합 대입 연산자를 쓰시오.",
+    "code": "int main(void) {\n    int n = 6;\n    n _____ 3;\n    printf(\"%d\", n);\n    return 0;\n}",
+    "answer": "*=",
+    "explanation": "n *= 3은 n = n * 3과 같은 계산을 하여 결과를 n에 저장한다. 6×3=18이다.",
+    "source": "기초 추가 연습 · 연산자",
+    "accepted": []
+  },
+  {
+    "cat": "op",
+    "difficulty": "basic",
+    "kind": "blank",
+    "title": "양수와 음수 모두에서 홀수를 판별하도록 0과 비교하는 연산자를 쓰시오.",
+    "code": "int main(void) {\n    int n = -3;\n    if (n % 2 _____ 0) printf(\"ODD\");\n    else printf(\"EVEN\");\n    return 0;\n}",
+    "answer": "!=",
+    "explanation": "홀수는 2로 나눈 나머지가 0이 아닌 정수다. 음수의 나머지는 -1일 수도 있으므로 ==1 대신 !=0을 사용하면 양수와 음수에 모두 맞는다.",
+    "source": "기초 추가 연습 · 연산자",
+    "accepted": []
+  },
+  {
+    "cat": "op",
+    "difficulty": "basic",
+    "kind": "output",
+    "title": "곱셈 우선순위와 괄호의 차이를 반영하여 두 값을 쓰시오.",
+    "code": "int main(void) {\n    int a = 2 + 3 * 4;\n    int b = (2 + 3) * 4;\n    printf(\"%d %d\", a, b);\n    return 0;\n}",
+    "answer": "14 20",
+    "explanation": "괄호가 없으면 곱셈 3×4를 먼저 하므로 a=14다. b는 괄호 안의 2+3을 먼저 계산하므로 5×4=20이다.",
+    "source": "기초 추가 연습 · 연산자"
+  },
+  {
+    "cat": "op",
+    "difficulty": "basic",
+    "kind": "output",
+    "title": "증감 연산이 서로 다른 문장에서 실행될 때 x, y, n의 최종 값을 쓰시오.",
+    "code": "int main(void) {\n    int n = 4;\n    int x = ++n;\n    int y = n--;\n    printf(\"%d %d %d\", x, y, n);\n    return 0;\n}",
+    "answer": "5 5 4",
+    "explanation": "++n은 먼저 n을 5로 만든 뒤 5를 x에 대입한다. n--는 현재 값 5를 y에 대입한 뒤 n을 4로 줄인다. 서로 다른 문장이므로 실행 순서가 분명하다.",
+    "source": "기초 추가 연습 · 연산자"
+  },
+  {
+    "cat": "op",
+    "difficulty": "intermediate",
+    "kind": "mc",
+    "title": "논리 AND와 비트 AND를 구분한 설명으로 옳은 것은?",
+    "code": "int main(void) {\n    int a = 2, b = 4;\n    printf(\"%d %d\", a && b, a & b);\n    return 0;\n}",
+    "answer": "둘 다 비0이라 논리 AND는 1이고 공통 1비트가 없어 비트 AND는 0이다",
+    "explanation": "논리 &&는 두 값이 모두 참인지 판단하므로 1이다. 2는 이진수 010, 4는 100이어서 자리별 AND 결과는 000, 즉 0이다.",
+    "source": "중급 추가 연습 · 연산자",
+    "choices": [
+      "둘 다 비0이라 논리 AND는 1이고 공통 1비트가 없어 비트 AND는 0이다",
+      "두 AND 모두 1이다",
+      "두 AND 모두 0이다",
+      "논리 AND는 6이고 비트 AND는 1이다",
+      "비트 AND는 두 수를 곱한다"
+    ]
+  },
+  {
+    "cat": "op",
+    "difficulty": "intermediate",
+    "kind": "mc",
+    "title": "음수의 나머지에 대한 설명으로 옳은 것은?",
+    "code": "int main(void) {\n    int n = -17;\n    printf(\"%d %d\", n / 5, n % 5);\n    return 0;\n}",
+    "answer": "몫은 -3이고 나머지는 -2다",
+    "explanation": "정수 몫은 0 방향으로 버려 -3이다. n=(n/5)×5+n%5이므로 -17=(-3)×5+(-2)에서 나머지는 -2다.",
+    "source": "중급 추가 연습 · 연산자",
+    "choices": [
+      "몫은 -3이고 나머지는 -2다",
+      "몫은 -4이고 나머지는 3이다",
+      "몫은 -3이고 나머지는 2다",
+      "나머지는 항상 양수 2다",
+      "음수에는 %를 적용할 수 없다"
+    ]
+  },
+  {
+    "cat": "op",
+    "difficulty": "intermediate",
+    "kind": "blank",
+    "title": "x가 10 이상 20 이하인 경우만 참이 되도록 두 비교식을 연결하시오.",
+    "code": "int main(void) {\n    int x = 21;\n    if (x >= 10 _____ x <= 20) printf(\"IN\");\n    else printf(\"OUT\");\n    return 0;\n}",
+    "answer": "&&",
+    "explanation": "구간 안에 있으려면 두 조건을 모두 만족해야 하므로 논리 AND인 &&를 사용한다. 21은 x<=20을 만족하지 않아 OUT을 출력한다.",
+    "source": "중급 추가 연습 · 연산자",
+    "accepted": []
+  },
+  {
+    "cat": "op",
+    "difficulty": "intermediate",
+    "kind": "blank",
+    "title": "하위 4비트를 모두 0으로 만들도록 unsigned 상수 15u에 비트 NOT을 적용한 식을 쓰시오.",
+    "code": "int main(void) {\n    unsigned int n = 173u;\n    n &= _____;\n    printf(\"%u\", n);\n    return 0;\n}",
+    "answer": "~15u",
+    "explanation": "15u는 하위 4비트만 1인 마스크다. ~15u와 AND하면 하위 4비트는 0이 되고 나머지 비트는 유지된다. 173(0xAD)은 160(0xA0)이 된다.",
+    "source": "중급 추가 연습 · 연산자",
+    "accepted": [
+      "~(15u)"
+    ]
+  },
+  {
+    "cat": "op",
+    "difficulty": "intermediate",
+    "kind": "blank",
+    "title": "XOR를 세 번 적용하여 a와 b를 교환하는 마지막 복합 대입 연산자를 쓰시오.",
+    "code": "int main(void) {\n    int a = 3, b = 9;\n    a ^= b;\n    b ^= a;\n    a _____ b;\n    printf(\"%d %d\", a, b);\n    return 0;\n}",
+    "answer": "^=",
+    "explanation": "처음 a에 두 값의 XOR를 저장한 뒤 b^=a로 원래 a를 b에 복원한다. 마지막 a^=b로 원래 b를 a에 복원하므로 9와 3이 된다.",
+    "source": "중급 추가 연습 · 연산자",
+    "accepted": []
+  },
+  {
+    "cat": "op",
+    "difficulty": "intermediate",
+    "kind": "output",
+    "title": "연속 비교식 1<x<3과 논리 AND로 묶은 구간 검사를 비교해 출력하시오.",
+    "code": "int main(void) {\n    int x = 5;\n    printf(\"%d %d\", 1 < x < 3, 1 < x && x < 3);\n    return 0;\n}",
+    "answer": "1 0",
+    "explanation": "1<x<3은 수학의 구간 표기가 아니라 (1<x)<3으로 계산된다. 첫 비교 결과 1에 대해 1<3은 참이다. 두 번째는 5<3이 거짓이므로 0이다.",
+    "source": "중급 추가 연습 · 연산자"
+  },
+  {
+    "cat": "op",
+    "difficulty": "intermediate",
+    "kind": "output",
+    "title": "나머지·곱셈·뺄셈 복합 대입을 순서대로 실행한 결과를 쓰시오.",
+    "code": "int main(void) {\n    int a = 19;\n    a %= 7;\n    a *= 3;\n    a -= 2;\n    printf(\"%d\", a);\n    return 0;\n}",
+    "answer": "13",
+    "explanation": "19%7=5, 5×3=15, 15-2=13 순서로 a가 바뀐다. 각 문장은 앞 문장에서 저장한 최신 값을 사용한다.",
+    "source": "중급 추가 연습 · 연산자"
+  },
+  {
+    "cat": "op",
+    "difficulty": "intermediate",
+    "kind": "output",
+    "title": "비트 이동 후 하위 두 비트만 추출한 두 값을 10진수로 쓰시오.",
+    "code": "int main(void) {\n    unsigned int n = 54u;\n    printf(\"%u %u\", (n >> 1) & 3u, (n >> 3) & 3u);\n    return 0;\n}",
+    "answer": "3 2",
+    "explanation": "54는 이진수 110110이다. 오른쪽 1비트 이동은 27이고 하위 두 비트는 11, 즉 3이다. 오른쪽 3비트 이동은 6이고 하위 두 비트는 10, 즉 2다.",
+    "source": "중급 추가 연습 · 연산자"
+  },
+  {
+    "cat": "op",
+    "difficulty": "hard",
+    "kind": "mc",
+    "title": "쉼표 연산자로 연결한 초기화식의 평가 순서와 최종 값에 대한 설명으로 옳은 것은?",
+    "code": "int main(void) {\n    int a = 1, b = 2;\n    int c = (a += 2, b *= a, a + b);\n    printf(\"%d %d %d\", a, b, c);\n    return 0;\n}",
+    "answer": "왼쪽부터 실행하여 a=3, b=6이 되고 마지막 식의 값 9가 c에 저장된다",
+    "explanation": "괄호 안의 쉼표는 쉼표 연산자다. 왼쪽 식의 평가를 끝낸 뒤 오른쪽 식을 평가하며 전체 값은 마지막 식 a+b의 값이다. 따라서 3,6,9다.",
+    "source": "심화 추가 연습 · 연산자",
+    "choices": [
+      "왼쪽부터 실행하여 a=3, b=6이 되고 마지막 식의 값 9가 c에 저장된다",
+      "모든 식을 동시에 계산하여 a=3, b=2, c=3이다",
+      "첫 번째 식의 값만 c에 저장하므로 c=3이다",
+      "쉼표가 있으므로 변수 c가 세 개 선언된다",
+      "평가 순서가 정해지지 않아 결과를 판단할 수 없다"
+    ]
+  },
+  {
+    "cat": "op",
+    "difficulty": "hard",
+    "kind": "blank",
+    "title": "a,b 중 정확히 하나만 비0일 때 참이 되도록, 두 논리값을 비교하는 연산자를 쓰시오.",
+    "code": "int main(void) {\n    int a = 2, b = -3;\n    if ((a != 0) _____ (b != 0)) printf(\"ONE\");\n    else printf(\"NOT_ONE\");\n    return 0;\n}",
+    "answer": "!=",
+    "explanation": "각 비교식은 0 또는 1로 정규화된다. 두 논리값이 다를 때만 정확히 하나가 참이므로 !=를 사용한다. 여기서는 둘 다 참이라 두 값이 같으므로 NOT_ONE이다.",
+    "source": "심화 추가 연습 · 연산자",
+    "accepted": []
+  },
+  {
+    "cat": "op",
+    "difficulty": "hard",
+    "kind": "output",
+    "title": "단락 평가와 후위·전위 증가를 함께 추적하여 a, b, r을 쓰시오.",
+    "code": "int main(void) {\n    int a = 0, b = 1;\n    int r = (a++ || ++b) && (b++ > 1);\n    printf(\"%d %d %d\", a, b, r);\n    return 0;\n}",
+    "answer": "1 3 1",
+    "explanation": "a++는 0을 낸 뒤 a=1이 된다. 왼쪽 OR가 아직 거짓이므로 ++b를 실행해 b=2이고 OR는 참이다. 따라서 &&의 오른쪽도 실행하며 b++는 2를 비교에 쓰고 b를 3으로 만든다. 2>1이 참이므로 r=1이다.",
+    "source": "심화 추가 연습 · 연산자"
+  },
+  {
+    "cat": "op",
+    "difficulty": "hard",
+    "kind": "output",
+    "title": "덧셈과 비트 이동의 우선순위 차이를 고려해 두 값을 출력하시오.",
+    "code": "int main(void) {\n    unsigned int n = 3u;\n    unsigned int a = n << 1 + 1;\n    unsigned int b = (n << 1) + 1;\n    printf(\"%u %u\", a, b);\n    return 0;\n}",
+    "answer": "12 7",
+    "explanation": "덧셈은 비트 이동보다 우선순위가 높다. a는 3<<(1+1)=3<<2=12다. b는 괄호로 비트 이동을 먼저 계산하여 6+1=7이다.",
+    "source": "심화 추가 연습 · 연산자"
+  },
+  {
+    "cat": "op",
+    "difficulty": "hard",
+    "kind": "output",
+    "title": "조건 연산자에서 실제 선택된 증감식과 뒤의 복합 대입을 추적하시오.",
+    "code": "int main(void) {\n    int a = 2, b = 5;\n    int c = a > b ? a++ : b--;\n    a += c % 3;\n    printf(\"%d %d %d\", a, b, c);\n    return 0;\n}",
+    "answer": "4 4 5",
+    "explanation": "a>b가 거짓이라 b--만 평가한다. c에는 감소 전 값 5가 저장되고 b=4가 되며 a++는 실행하지 않는다. 이후 a에 5%3=2를 더해 a=4가 된다.",
+    "source": "심화 추가 연습 · 연산자"
+  },
+  {
+    "cat": "branch",
+    "difficulty": "basic",
+    "kind": "mc",
+    "title": "else 없이 나란히 있는 두 if문에 대한 설명으로 옳은 것은?",
+    "code": "int main(void) {\n    int x = 4;\n    if (x > 0) printf(\"P\");\n    if (x % 2 == 0) printf(\"E\");\n    return 0;\n}",
+    "answer": "두 조건을 각각 검사하므로 P와 E가 모두 출력된다",
+    "explanation": "서로 독립된 if문이므로 각 조건을 모두 검사한다. 4는 양수이면서 짝수이므로 P 다음 E를 출력한다.",
+    "source": "기초 추가 연습 · 선택문",
+    "choices": [
+      "두 조건을 각각 검사하므로 P와 E가 모두 출력된다",
+      "첫 조건이 참이면 둘째 if는 검사하지 않는다",
+      "둘째 if는 항상 첫째 if의 else다",
+      "조건이 두 개이므로 컴파일되지 않는다",
+      "마지막 if의 E만 출력된다"
+    ]
+  },
+  {
+    "cat": "branch",
+    "difficulty": "basic",
+    "kind": "mc",
+    "title": "default가 case 사이에 있어도 이 switch문이 처리되는 방식으로 옳은 것은?",
+    "code": "int main(void) {\n    int n = 9;\n    switch (n) {\n        case 1: printf(\"A\"); break;\n        default: printf(\"D\"); break;\n        case 2: printf(\"B\"); break;\n    }\n    return 0;\n}",
+    "answer": "일치하는 case가 없으므로 default의 D를 출력한다",
+    "explanation": "default의 위치가 반드시 마지막일 필요는 없다. n=9와 맞는 case가 없으므로 default에서 시작하고 break에서 끝나 D를 출력한다.",
+    "source": "기초 추가 연습 · 선택문",
+    "choices": [
+      "일치하는 case가 없으므로 default의 D를 출력한다",
+      "default는 마지막에 없어서 실행되지 않는다",
+      "첫 case의 A를 무조건 출력한다",
+      "default 뒤의 case 2로 먼저 이동한다",
+      "default의 위치 때문에 컴파일 오류다"
+    ]
+  },
+  {
+    "cat": "branch",
+    "difficulty": "basic",
+    "kind": "mc",
+    "title": "조건 연산자로 작은 값을 고르는 식에 대한 설명으로 옳은 것은?",
+    "code": "int main(void) {\n    int a = 4, b = 7;\n    int min = a < b ? a : b;\n    printf(\"%d\", min);\n    return 0;\n}",
+    "answer": "a<b가 참이라 첫 번째 값 a인 4를 선택한다",
+    "explanation": "물음표 앞의 조건이 참이면 콜론 앞 표현식을 선택한다. 4<7은 참이므로 a인 4가 min에 저장된다.",
+    "source": "기초 추가 연습 · 선택문",
+    "choices": [
+      "a<b가 참이라 첫 번째 값 a인 4를 선택한다",
+      "항상 두 번째 값 b인 7을 선택한다",
+      "a와 b를 더한 11을 선택한다",
+      "조건이 참이므로 정수 1만 선택한다",
+      "두 정수를 비교할 수 없어 오류가 난다"
+    ]
+  },
+  {
+    "cat": "branch",
+    "difficulty": "basic",
+    "kind": "blank",
+    "title": "n이 음수일 때만 NEG를 출력하도록 비교 연산자를 쓰시오.",
+    "code": "int main(void) {\n    int n = -2;\n    if (n _____ 0) printf(\"NEG\");\n    else printf(\"NONNEG\");\n    return 0;\n}",
+    "answer": "<",
+    "explanation": "음수는 0보다 작은 수이므로 <를 쓴다. -2<0이 참이어서 NEG를 출력한다.",
+    "source": "기초 추가 연습 · 선택문",
+    "accepted": []
+  },
+  {
+    "cat": "branch",
+    "difficulty": "basic",
+    "kind": "blank",
+    "title": "일치하는 case가 없을 때 실행할 레이블의 키워드를 쓰시오.",
+    "code": "int main(void) {\n    int n = 7;\n    switch (n) {\n        case 1: printf(\"ONE\"); break;\n        _____: printf(\"OTHER\");\n    }\n    return 0;\n}",
+    "answer": "default",
+    "explanation": "default는 어떤 case와도 일치하지 않을 때 실행할 위치다. n은 7이므로 ONE이 아니라 OTHER를 출력한다.",
+    "source": "기초 추가 연습 · 선택문",
+    "accepted": []
+  },
+  {
+    "cat": "branch",
+    "difficulty": "basic",
+    "kind": "output",
+    "title": "첫 번째 if에서 바뀐 값으로 두 번째 if를 검사할 때의 결과를 쓰시오.",
+    "code": "int main(void) {\n    int n = 3;\n    if (n > 0) n--;\n    if (n > 1) n *= 2;\n    printf(\"%d\", n);\n    return 0;\n}",
+    "answer": "4",
+    "explanation": "첫 if는 n을 3에서 2로 바꾼다. 다음 조건은 바뀐 n=2로 검사하므로 참이고, 2배인 4를 저장한다.",
+    "source": "기초 추가 연습 · 선택문"
+  },
+  {
+    "cat": "branch",
+    "difficulty": "basic",
+    "kind": "output",
+    "title": "문자 값을 제어식으로 사용하는 switch문의 출력을 쓰시오.",
+    "code": "int main(void) {\n    char c = 'b';\n    switch (c) {\n        case 'a': printf(\"A\"); break;\n        case 'b': printf(\"B\"); break;\n        default: printf(\"X\");\n    }\n    return 0;\n}",
+    "answer": "B",
+    "explanation": "char도 switch의 정수형 제어식으로 사용할 수 있다. c는 문자 b와 일치하므로 B를 출력하고 break로 끝낸다.",
+    "source": "기초 추가 연습 · 선택문"
+  },
+  {
+    "cat": "branch",
+    "difficulty": "intermediate",
+    "kind": "mc",
+    "title": "if 바로 뒤의 세미콜론에 주의할 때 이 코드의 동작으로 옳은 것은?",
+    "code": "int main(void) {\n    int n = -2;\n    if (n > 0);\n    printf(\"P\");\n    return 0;\n}",
+    "answer": "if의 본문은 빈 문장이어서 printf는 조건과 관계없이 실행된다",
+    "explanation": "if(n>0);의 세미콜론은 빈 본문이다. 다음 printf는 if문 밖의 독립된 문장이므로 조건이 거짓이어도 P를 출력한다.",
+    "source": "중급 추가 연습 · 선택문",
+    "choices": [
+      "if의 본문은 빈 문장이어서 printf는 조건과 관계없이 실행된다",
+      "조건이 거짓이므로 아무것도 출력하지 않는다",
+      "세미콜론 때문에 P를 두 번 출력한다",
+      "세미콜론이 n을 0으로 만든다",
+      "이 문법은 반드시 컴파일 오류다"
+    ]
+  },
+  {
+    "cat": "branch",
+    "difficulty": "intermediate",
+    "kind": "mc",
+    "title": "여러 case 레이블이 같은 실행 부분을 공유하는 방식으로 옳은 것은?",
+    "code": "int main(void) {\n    int day = 6;\n    switch (day) {\n        case 6:\n        case 7: printf(\"WEEKEND\"); break;\n        default: printf(\"WEEKDAY\");\n    }\n    return 0;\n}",
+    "answer": "6과 7은 모두 WEEKEND를 출력한다",
+    "explanation": "case 6에는 실행문이나 break가 없어서 case 7의 출력 부분으로 이어진다. 두 값이 같은 처리를 공유하며 출력 뒤의 break에서 끝난다.",
+    "source": "중급 추가 연습 · 선택문",
+    "choices": [
+      "6과 7은 모두 WEEKEND를 출력한다",
+      "6은 출력이 없고 7만 WEEKEND를 출력한다",
+      "case 6에서 자동으로 switch가 끝난다",
+      "case 6과 7을 나란히 쓸 수 없다",
+      "default가 항상 함께 실행된다"
+    ]
+  },
+  {
+    "cat": "branch",
+    "difficulty": "intermediate",
+    "kind": "blank",
+    "title": "음수·0·양수를 구분하도록, 0인 경우의 비교식을 ==로 작성하시오.",
+    "code": "int main(void) {\n    int x = 0, sign;\n    if (x < 0) sign = -1;\n    else if (_____) sign = 0;\n    else sign = 1;\n    printf(\"%d\", sign);\n    return 0;\n}",
+    "answer": "x == 0",
+    "explanation": "앞의 x<0이 거짓이면 0 또는 양수다. x==0인 경우만 sign=0으로 두고 나머지 양수는 1로 분류한다.",
+    "source": "중급 추가 연습 · 선택문",
+    "accepted": [
+      "0==x"
+    ]
+  },
+  {
+    "cat": "branch",
+    "difficulty": "intermediate",
+    "kind": "blank",
+    "title": "양의 세 변이 삼각형을 만들려면 세 부등식을 모두 만족해야 한다. 빈칸의 논리 연산자를 쓰시오.",
+    "code": "int main(void) {\n    int a = 3, b = 4, c = 8;\n    if (a + b > c && a + c > b _____ b + c > a)\n        printf(\"YES\");\n    else printf(\"NO\");\n    return 0;\n}",
+    "answer": "&&",
+    "explanation": "세 조건이 모두 참이어야 하므로 &&로 연결한다. 여기서는 a+b=7이 c=8보다 크지 않아 삼각형을 만들 수 없으므로 NO다.",
+    "source": "중급 추가 연습 · 선택문",
+    "accepted": []
+  },
+  {
+    "cat": "branch",
+    "difficulty": "intermediate",
+    "kind": "blank",
+    "title": "세 수 중 최댓값을 고르는 중첩 조건식에서 b와 c의 비교식을 >로 쓰시오.",
+    "code": "int main(void) {\n    int a = 3, b = 8, c = 5;\n    int m = (a > b) ? ((a > c) ? a : c) : ((_____) ? b : c);\n    printf(\"%d\", m);\n    return 0;\n}",
+    "answer": "b > c",
+    "explanation": "a>b가 거짓인 분기에서는 b가 a 이상이므로 b와 c 중 큰 값을 고르면 된다. b>c가 참이라 b=8을 선택한다.",
+    "source": "중급 추가 연습 · 선택문",
+    "accepted": []
+  },
+  {
+    "cat": "branch",
+    "difficulty": "intermediate",
+    "kind": "output",
+    "title": "break가 없는 case와 default의 연속 실행을 고려해 s를 구하시오.",
+    "code": "int main(void) {\n    int n = 2, s = 1;\n    switch (n) {\n        case 1: s += 2;\n        case 2: s *= 3;\n        default: s += 4;\n    }\n    printf(\"%d\", s);\n    return 0;\n}",
+    "answer": "7",
+    "explanation": "case 2에서 시작해 s=1×3=3이 된다. break가 없어 다음 default의 s+=4까지 실행하므로 최종 값은 7이다.",
+    "source": "중급 추가 연습 · 선택문"
+  },
+  {
+    "cat": "branch",
+    "difficulty": "intermediate",
+    "kind": "output",
+    "title": "부호를 검사하는 중첩 if문이 선택한 사분면 문자열을 쓰시오.",
+    "code": "int main(void) {\n    int x = -2, y = 3;\n    if (x >= 0) {\n        if (y >= 0) printf(\"I\");\n        else printf(\"IV\");\n    } else {\n        if (y >= 0) printf(\"II\");\n        else printf(\"III\");\n    }\n    return 0;\n}",
+    "answer": "II",
+    "explanation": "x가 음수라 바깥 else로 이동하고 y가 0 이상이므로 그 안의 첫 분기를 실행한다. 따라서 제2사분면을 나타내는 II를 출력한다.",
+    "source": "중급 추가 연습 · 선택문"
+  },
+  {
+    "cat": "branch",
+    "difficulty": "intermediate",
+    "kind": "output",
+    "title": "오른쪽으로 묶이는 조건 연산자 두 개의 결과에 덧셈까지 적용한 값을 쓰시오.",
+    "code": "int main(void) {\n    int a = 0, b = 1, c = 2;\n    int r = a ? 10 : b ? 20 : 30;\n    printf(\"%d\", r + c);\n    return 0;\n}",
+    "answer": "22",
+    "explanation": "식은 a?10:(b?20:30)으로 묶인다. a는 0이라 b의 조건식을 선택하고 b는 참이므로 r=20이다. c=2를 더해 22를 출력한다.",
+    "source": "중급 추가 연습 · 선택문"
+  },
+  {
+    "cat": "branch",
+    "difficulty": "hard",
+    "kind": "mc",
+    "title": "switch를 실행하는 도중 제어 변수 n의 값을 바꾸면 어떤 일이 일어나는가?",
+    "code": "int main(void) {\n    int n = 1;\n    switch (n) {\n        case 1: n = 2; printf(\"A\"); break;\n        case 2: printf(\"B\"); break;\n    }\n    printf(\"%d\", n);\n    return 0;\n}",
+    "answer": "처음 고른 case 1을 계속 실행하므로 A2가 출력된다",
+    "explanation": "switch는 진입할 때 제어식을 평가해 시작 위치를 정한다. 내부에서 n을 바꾸어도 다른 case로 다시 점프하지 않는다. A를 출력하고 break한 뒤 바뀐 n인 2를 출력한다.",
+    "source": "심화 추가 연습 · 선택문",
+    "choices": [
+      "처음 고른 case 1을 계속 실행하므로 A2가 출력된다",
+      "n이 2가 되는 즉시 case 2로 점프해 B2를 출력한다",
+      "제어식을 계속 재검사해 무한 반복한다",
+      "변경된 n은 switch 밖에서 1로 돌아온다",
+      "제어 변수는 switch 안에서 변경할 수 없다"
+    ]
+  },
+  {
+    "cat": "branch",
+    "difficulty": "hard",
+    "kind": "blank",
+    "title": "절댓값이 더 작은 수를 고르되 같으면 a를 선택한다. absA와 absB를 <=로 비교하시오.",
+    "code": "int main(void) {\n    int a = -7, b = 5;\n    int absA = a < 0 ? -a : a;\n    int absB = b < 0 ? -b : b;\n    int chosen = (_____) ? a : b;\n    printf(\"%d\", chosen);\n    return 0;\n}",
+    "answer": "absA <= absB",
+    "explanation": "크기가 같을 때도 a를 선택하려면 absA<=absB로 비교한다. 이 경우 절댓값은 각각 7과 5이므로 b=5를 고른다. 작은 정수 예제라 음수의 부호 반전에 오버플로는 없다.",
+    "source": "심화 추가 연습 · 선택문",
+    "accepted": [
+      "absB>=absA"
+    ]
+  },
+  {
+    "cat": "branch",
+    "difficulty": "hard",
+    "kind": "output",
+    "title": "switch 안의 continue가 뒤의 곱셈을 건너뛸 때 최종 s를 쓰시오.",
+    "code": "int main(void) {\n    int s = 0;\n    for (int i = 0; i < 3; i++) {\n        switch (i) {\n            case 0: s += 1; break;\n            case 1: continue;\n            default: s += 3;\n        }\n        s *= 2;\n    }\n    printf(\"%d\", s);\n    return 0;\n}",
+    "answer": "10",
+    "explanation": "i=0에서는 1을 더한 뒤 2배 하여 s=2다. i=1의 continue는 for의 다음 반복으로 가므로 곱셈을 건너뛴다. i=2에서는 3을 더해 5가 되고 2배 하여 10이다.",
+    "source": "심화 추가 연습 · 선택문"
+  },
+  {
+    "cat": "branch",
+    "difficulty": "hard",
+    "kind": "output",
+    "title": "중첩 조건 연산자에서 선택되지 않은 증감식은 실행하지 않는다. 최종 세 값을 쓰시오.",
+    "code": "int main(void) {\n    int a = 0, b = 2, c = 3;\n    int x = a ? b++ : (b > 1 ? --c : c++);\n    printf(\"%d %d %d\", x, b, c);\n    return 0;\n}",
+    "answer": "2 2 2",
+    "explanation": "a가 거짓이라 b++는 실행하지 않는다. 다음 b>1이 참이어서 --c만 실행해 c=2가 되고 그 값이 x에 저장된다. c++는 실행하지 않으므로 x,b,c는 모두 2다.",
+    "source": "심화 추가 연습 · 선택문"
+  },
+  {
+    "cat": "branch",
+    "difficulty": "hard",
+    "kind": "output",
+    "title": "음수의 나머지가 default로 갈 수 있음에 주의하여 누적합을 구하시오.",
+    "code": "int main(void) {\n    int s = 0;\n    for (int n = -2; n <= 2; n++) {\n        switch (n % 2) {\n            case 0: s += 2; break;\n            case 1: s += 1; break;\n            default: s -= 1;\n        }\n    }\n    printf(\"%d\", s);\n    return 0;\n}",
+    "answer": "6",
+    "explanation": "n=-2,0,2는 나머지가 0이라 각각 2씩 더한다. n=-1의 나머지는 -1이어서 default에서 1을 빼고, n=1은 1을 더한다. 합계는 2-1+2+1+2=6이다.",
+    "source": "심화 추가 연습 · 선택문"
+  },
+  {
+    "cat": "loop",
+    "difficulty": "basic",
+    "kind": "mc",
+    "title": "for문의 조건이 처음부터 거짓일 때 초기화와 본문은 어떻게 되는가?",
+    "code": "int main(void) {\n    int i, count = 0;\n    for (i = 5; i < 3; i++) count++;\n    printf(\"%d %d\", i, count);\n    return 0;\n}",
+    "answer": "초기화는 실행되고 본문은 실행되지 않아 i=5, count=0이다",
+    "explanation": "for는 초기화를 먼저 한 뒤 조건을 검사한다. i=5는 i<3을 만족하지 않아 본문과 증감식을 실행하지 않고 끝난다.",
+    "source": "기초 추가 연습 · 반복문",
+    "choices": [
+      "초기화는 실행되고 본문은 실행되지 않아 i=5, count=0이다",
+      "초기화도 실행되지 않아 i=0이다",
+      "본문은 반드시 한 번 실행되어 count=1이다",
+      "조건이 거짓이면 증감식만 한 번 실행된다",
+      "조건이 거짓이므로 컴파일 오류다"
+    ]
+  },
+  {
+    "cat": "loop",
+    "difficulty": "basic",
+    "kind": "mc",
+    "title": "for문의 닫는 괄호 바로 뒤 세미콜론에 대한 설명으로 옳은 것은?",
+    "code": "int main(void) {\n    int i;\n    for (i = 0; i < 4; i++);\n    printf(\"%d\", i);\n    return 0;\n}",
+    "answer": "빈 본문을 네 번 반복한 뒤 i=4를 한 번 출력한다",
+    "explanation": "세미콜론이 빈 반복 본문이다. 증감식은 정상적으로 실행되어 i가 4가 될 때 조건이 거짓이 되고, 반복문 밖 printf에서 4를 한 번 출력한다.",
+    "source": "기초 추가 연습 · 반복문",
+    "choices": [
+      "빈 본문을 네 번 반복한 뒤 i=4를 한 번 출력한다",
+      "0,1,2,3을 모두 출력한다",
+      "세미콜론 때문에 반복문이 아예 실행되지 않는다",
+      "i는 항상 초기값 0으로 남는다",
+      "끝 조건이 없어 무한 반복한다"
+    ]
+  },
+  {
+    "cat": "loop",
+    "difficulty": "basic",
+    "kind": "mc",
+    "title": "누적합을 구하는 이 반복문에 대한 설명으로 옳은 것은?",
+    "code": "int main(void) {\n    int s = 0;\n    for (int i = 1; i <= 4; i++) s += i;\n    printf(\"%d\", s);\n    return 0;\n}",
+    "answer": "1부터 4까지 더한 10이 저장된다",
+    "explanation": "s+=i는 기존 합계에 이번 i를 더한다. 1+2+3+4=10이 된다. 누적합의 시작값은 0이다.",
+    "source": "기초 추가 연습 · 반복문",
+    "choices": [
+      "1부터 4까지 더한 10이 저장된다",
+      "마지막 값 4만 저장된다",
+      "반복 횟수인 4가 s에 저장된다",
+      "곱셈을 반복하므로 24다",
+      "초기값이 0이어서 끝까지 0이다"
+    ]
+  },
+  {
+    "cat": "loop",
+    "difficulty": "basic",
+    "kind": "blank",
+    "title": "5부터 1까지 내려가며 출력하도록 감소 연산자를 사용한 증감식을 쓰시오.",
+    "code": "int main(void) {\n    for (int i = 5; i > 0; _____)\n        printf(\"%d \", i);\n    return 0;\n}",
+    "answer": "i--",
+    "explanation": "각 반복 뒤 i를 1 줄이면 5,4,3,2,1을 출력한다. 그 뒤 i=0이 되어 조건이 거짓이 된다.",
+    "source": "기초 추가 연습 · 반복문",
+    "accepted": [
+      "--i"
+    ]
+  },
+  {
+    "cat": "loop",
+    "difficulty": "basic",
+    "kind": "blank",
+    "title": "0부터 8까지 짝수만 출력하도록 복합 대입으로 i를 2 증가시키시오.",
+    "code": "int main(void) {\n    for (int i = 0; i <= 8; _____)\n        printf(\"%d \", i);\n    return 0;\n}",
+    "answer": "i += 2",
+    "explanation": "0에서 시작해 매번 2를 더하므로 0,2,4,6,8을 출력한다. 8 다음에는 10이 되어 반복을 끝낸다.",
+    "source": "기초 추가 연습 · 반복문",
+    "accepted": []
+  },
+  {
+    "cat": "loop",
+    "difficulty": "basic",
+    "kind": "output",
+    "title": "반복 변수의 제곱을 출력하는 프로그램의 결과를 한 줄로 쓰시오.",
+    "code": "int main(void) {\n    for (int i = 0; i < 5; i++)\n        printf(\"%d \", i * i);\n    return 0;\n}",
+    "answer": "0 1 4 9 16",
+    "explanation": "i는 0부터 4까지다. 각각의 제곱 0,1,4,9,16을 차례대로 출력한다.",
+    "source": "기초 추가 연습 · 반복문"
+  },
+  {
+    "cat": "loop",
+    "difficulty": "basic",
+    "kind": "output",
+    "title": "2씩 감소하는 do-while문의 실제 출력 순서를 쓰시오.",
+    "code": "int main(void) {\n    int i = 3;\n    do {\n        printf(\"%d \", i);\n        i -= 2;\n    } while (i > 0);\n    return 0;\n}",
+    "answer": "3 1",
+    "explanation": "먼저 3을 출력하고 i=1로 만든 뒤 다시 반복한다. 1을 출력한 뒤 i=-1이 되어 조건이 거짓이므로 끝난다.",
+    "source": "기초 추가 연습 · 반복문"
+  },
+  {
+    "cat": "loop",
+    "difficulty": "intermediate",
+    "kind": "mc",
+    "title": "for문에서 continue가 실행된 차례에도 증감식이 실행되는가?",
+    "code": "int main(void) {\n    int i, s = 0;\n    for (i = 0; i < 5; i++) {\n        if (i < 3) continue;\n        s += i;\n    }\n    printf(\"%d %d\", i, s);\n    return 0;\n}",
+    "answer": "증감식이 실행되어 i=5로 끝나고 s에는 3+4=7이 저장된다",
+    "explanation": "for의 continue는 증감식으로 이동한 뒤 다음 조건을 검사한다. i=0,1,2에서는 덧셈을 건너뛰고 i=3,4만 더하며, 마지막 증감 후 i=5로 끝난다.",
+    "source": "중급 추가 연습 · 반복문",
+    "choices": [
+      "증감식이 실행되어 i=5로 끝나고 s에는 3+4=7이 저장된다",
+      "증감식을 건너뛰어 i=0에서 무한 반복한다",
+      "continue가 for 전체를 끝내 i=0, s=0이다",
+      "i는 4로 끝나고 s=10이다",
+      "continue 이후의 문장은 항상 실행된다"
+    ]
+  },
+  {
+    "cat": "loop",
+    "difficulty": "intermediate",
+    "kind": "mc",
+    "title": "안쪽 반복 횟수가 바깥 변수와 무관할 때 전체 실행 횟수로 옳은 것은?",
+    "code": "int main(void) {\n    int count = 0;\n    for (int i = 0; i < 2; i++)\n        for (int j = 0; j < 3; j++) count++;\n    printf(\"%d\", count);\n    return 0;\n}",
+    "answer": "바깥 2회마다 안쪽 3회씩 실행하여 6회다",
+    "explanation": "안쪽 for는 바깥 반복의 매 차례 j=0으로 다시 시작한다. 2×3=6회 count를 증가시킨다.",
+    "source": "중급 추가 연습 · 반복문",
+    "choices": [
+      "바깥 2회마다 안쪽 3회씩 실행하여 6회다",
+      "두 반복 횟수를 더한 5회다",
+      "큰 반복 횟수인 3회다",
+      "안쪽 변수 j는 한 번만 초기화되어 3회다",
+      "바깥 반복이 안쪽 반복을 취소해 0회다"
+    ]
+  },
+  {
+    "cat": "loop",
+    "difficulty": "intermediate",
+    "kind": "blank",
+    "title": "정수를 정상적으로 읽은 경우에도 0을 만나면 합산을 멈추도록 != 비교식을 쓰시오.",
+    "code": "int main(void) {\n    int n, sum = 0;\n    while (scanf(\"%d\", &n) == 1 && _____) {\n        sum += n;\n    }\n    printf(\"%d\", sum);\n    return 0;\n}",
+    "answer": "n != 0",
+    "explanation": "입력 성공 여부와 0이 아닌지를 모두 확인한다. 3과 4를 더한 뒤 0에서 조건이 거짓이 되어 종료한다. 뒤의 9는 합산하지 않는다.",
+    "source": "중급 추가 연습 · 반복문",
+    "context": "입력: 3 4 0 9",
+    "accepted": [
+      "0!=n"
+    ]
+  },
+  {
+    "cat": "loop",
+    "difficulty": "intermediate",
+    "kind": "blank",
+    "title": "5!을 구하도록 누적 곱을 계산하는 복합 대입 연산자를 쓰시오.",
+    "code": "int main(void) {\n    int p = 1;\n    for (int i = 2; i <= 5; i++) p _____ i;\n    printf(\"%d\", p);\n    return 0;\n}",
+    "answer": "*=",
+    "explanation": "곱셈의 누적 시작값은 1이다. p*=i로 2,3,4,5를 차례로 곱하면 1×2×3×4×5=120이다.",
+    "source": "중급 추가 연습 · 반복문",
+    "accepted": []
+  },
+  {
+    "cat": "loop",
+    "difficulty": "intermediate",
+    "kind": "blank",
+    "title": "정수를 뒤집는 반복문에서 %로 현재 n의 마지막 자리를 구하시오.",
+    "code": "int main(void) {\n    int n = 2040, rev = 0;\n    while (n > 0) {\n        rev = rev * 10 + _____;\n        n /= 10;\n    }\n    printf(\"%d\", rev);\n    return 0;\n}",
+    "answer": "n % 10",
+    "explanation": "n%10은 마지막 한 자리다. rev는 0→0→4→40→402로 바뀐다. 정수에는 맨 앞 0이 따로 보존되지 않아 최종 출력은 402다.",
+    "source": "중급 추가 연습 · 반복문",
+    "accepted": []
+  },
+  {
+    "cat": "loop",
+    "difficulty": "intermediate",
+    "kind": "output",
+    "title": "각 행에서 숫자가 감소하는 중첩 반복문의 출력 모양을 쓰시오.",
+    "code": "int main(void) {\n    for (int i = 1; i <= 3; i++) {\n        for (int j = 1; j <= i; j++) printf(\"%d \", i - j + 1);\n        printf(\"\\n\");\n    }\n    return 0;\n}",
+    "answer": "1\n2 1\n3 2 1",
+    "explanation": "i번째 행에서 j가 1부터 i까지 증가하므로 i-j+1은 i부터 1까지 감소한다. 각 행이 끝나면 줄바꿈한다.",
+    "source": "중급 추가 연습 · 반복문"
+  },
+  {
+    "cat": "loop",
+    "difficulty": "intermediate",
+    "kind": "output",
+    "title": "2 또는 3의 배수를 모두 건너뛰고 남은 수의 합과 개수를 쓰시오.",
+    "code": "int main(void) {\n    int sum = 0, count = 0;\n    for (int i = 1; i <= 10; i++) {\n        if (i % 2 == 0 || i % 3 == 0) continue;\n        sum += i;\n        count++;\n    }\n    printf(\"%d %d\", sum, count);\n    return 0;\n}",
+    "answer": "13 3",
+    "explanation": "1부터 10 중 2의 배수도 3의 배수도 아닌 수는 1,5,7이다. 합계는 13이고 개수는 3이다.",
+    "source": "중급 추가 연습 · 반복문"
+  },
+  {
+    "cat": "loop",
+    "difficulty": "intermediate",
+    "kind": "output",
+    "title": "현재 값이 20 미만인 동안 두 배로 만드는 반복문의 종료값과 횟수를 쓰시오.",
+    "code": "int main(void) {\n    int n = 1, steps = 0;\n    while (n < 20) {\n        n *= 2;\n        steps++;\n    }\n    printf(\"%d %d\", n, steps);\n    return 0;\n}",
+    "answer": "32 5",
+    "explanation": "n은 1→2→4→8→16→32로 변한다. 16은 아직 20 미만이므로 한 번 더 실행한 뒤 32에서 멈추고, 반복은 다섯 번이다.",
+    "source": "중급 추가 연습 · 반복문"
+  },
+  {
+    "cat": "loop",
+    "difficulty": "hard",
+    "kind": "mc",
+    "title": "for문의 본문과 증감식에서 모두 i를 증가시킬 때의 종료 상태로 옳은 것은?",
+    "code": "int main(void) {\n    int i, count = 0;\n    for (i = 0; i < 6; i++) {\n        i++;\n        count++;\n    }\n    printf(\"%d %d\", i, count);\n    return 0;\n}",
+    "answer": "본문 시작 시 i는 0,2,4이고 종료 시 i=6, count=3이다",
+    "explanation": "본문의 i++와 for의 증감식은 서로 다른 순서로 실행된다. 매 차례 총 2씩 증가하여 본문 시작값은 0,2,4이고 세 번 실행한 뒤 i=6으로 끝난다.",
+    "source": "심화 추가 연습 · 반복문",
+    "choices": [
+      "본문 시작 시 i는 0,2,4이고 종료 시 i=6, count=3이다",
+      "본문이 여섯 번 실행되어 i=6, count=6이다",
+      "본문의 증가만 적용되어 i=3, count=3이다",
+      "본문의 i++는 무시된다",
+      "두 번 증가시키는 것은 정의되지 않은 동작이다"
+    ]
+  },
+  {
+    "cat": "loop",
+    "difficulty": "hard",
+    "kind": "blank",
+    "title": "제곱근까지의 약수를 검사하되 완전제곱수도 놓치지 않도록 d*d와 n의 비교식을 쓰시오.",
+    "code": "int main(void) {\n    int n = 49, prime = 1;\n    for (int d = 2; _____; d++) {\n        if (n % d == 0) { prime = 0; break; }\n    }\n    printf(\"%d\", prime);\n    return 0;\n}",
+    "answer": "d * d <= n",
+    "explanation": "약수는 제곱근을 기준으로 짝을 이룬다. d*d<=n으로 검사해야 d=7도 포함되어 49를 합성수로 판별한다. <만 쓰면 완전제곱수의 제곱근 약수를 놓칠 수 있다.",
+    "source": "심화 추가 연습 · 반복문",
+    "accepted": [
+      "n>=d*d"
+    ]
+  },
+  {
+    "cat": "loop",
+    "difficulty": "hard",
+    "kind": "output",
+    "title": "약수 개수가 정확히 두 개인 수만 골라 더한 합계를 구하시오.",
+    "code": "int main(void) {\n    int total = 0;\n    for (int n = 2; n <= 8; n++) {\n        int divisors = 0;\n        for (int d = 1; d <= n; d++)\n            if (n % d == 0) divisors++;\n        if (divisors == 2) total += n;\n    }\n    printf(\"%d\", total);\n    return 0;\n}",
+    "answer": "17",
+    "explanation": "1과 자기 자신 두 약수만 가진 수는 소수다. 2부터 8까지의 소수 2,3,5,7을 더하면 17이다. divisors는 n이 바뀔 때마다 0으로 초기화한다.",
+    "source": "심화 추가 연습 · 반복문"
+  },
+  {
+    "cat": "loop",
+    "difficulty": "hard",
+    "kind": "output",
+    "title": "각 자리 합을 한 자리 수가 될 때까지 반복한다. 최종 n과 반복 횟수를 쓰시오.",
+    "code": "int main(void) {\n    int n = 987, count = 0;\n    while (n >= 10) {\n        int sum = 0;\n        while (n > 0) {\n            sum += n % 10;\n            n /= 10;\n        }\n        n = sum;\n        count++;\n    }\n    printf(\"%d %d\", n, count);\n    return 0;\n}",
+    "answer": "6 2",
+    "explanation": "첫 바깥 반복에서 9+8+7=24를 얻고, 두 번째에서 2+4=6을 얻는다. 6은 한 자리여서 종료하며 바깥 반복 횟수는 2다. 안쪽 반복에서 n을 모두 소모한 뒤 n=sum으로 다시 저장한다.",
+    "source": "심화 추가 연습 · 반복문"
+  },
+  {
+    "cat": "loop",
+    "difficulty": "hard",
+    "kind": "output",
+    "title": "큰 수에서 작은 수를 반복해 빼는 최대공약수 알고리즘의 결과와 뺄셈 횟수를 쓰시오.",
+    "code": "int main(void) {\n    int a = 18, b = 12, steps = 0;\n    while (a != b) {\n        if (a > b) a -= b;\n        else b -= a;\n        steps++;\n    }\n    printf(\"%d %d\", a, steps);\n    return 0;\n}",
+    "answer": "6 2",
+    "explanation": "(18,12)에서 큰 a에 대해 a-=b를 하면 (6,12)다. 다음에는 b-=a로 (6,6)이 되어 끝난다. 두 수가 같을 때의 값 6이 최대공약수이고 뺄셈은 두 번이다.",
+    "source": "심화 추가 연습 · 반복문"
+  }
+];
+
+ADDITIONAL_100.forEach(item=>{
+  add(item.cat,item.kind,item.source,()=>{
+    if(item.kind==='mc')return {...mc(item.title,item.choices,0,item.explanation,item.tip||''),code:item.code,context:item.context||''};
+    if(item.kind==='blank')return {...blank(item.title,item.code,item.answer,item.explanation,item.accepted||[],item.tip||''),context:item.context||''};
+    return output(item.title,item.code,item.answer,item.explanation,item.context||'',item.tip||'');
+  },item.difficulty);
+});
+
 const ALL=bank.length;
 // Normalize logical program output while retaining significant newlines.
 function normOutput(s){ return String(s).replace(/\r\n?/g,'\n').split('\n').map(line=>line.trim().replace(/[ \t]+/g,' ')).join('\n').trim(); }
@@ -453,7 +1734,7 @@ function renderNotebook(){
   notes.forEach(note=>{
     const question=note.question,card=element('details',undefined,'note-card'),summary=element('summary');
     summary.append(element('span',note.resolved?'복습 완료':'복습 필요','note-status'+(note.resolved?' done':'')),element('strong',question.title));
-    summary.append(element('span',`${categoryNames[question.cat]} · ${kindNames[question.kind]} · ${question.difficulty==='hard'?'심화':'기본'} · ${note.wrongCount}회 오답 · ${new Date(note.lastWrongAt).toLocaleString('ko-KR')}`,'note-meta'));
+    summary.append(element('span',`${categoryNames[question.cat]} · ${kindNames[question.kind]} · ${difficultyNames[question.difficulty]||'기초'} · ${note.wrongCount}회 오답 · ${new Date(note.lastWrongAt).toLocaleString('ko-KR')}`,'note-meta'));
     const body=element('div',undefined,'note-body');
     if(question.context)body.append(element('p',question.context));
     if(question.code)body.append(element('pre',question.code));
@@ -478,7 +1759,7 @@ function displayQuestion(question,noteId=null){
   $('nextBtn').textContent=noteId?'새 문제 풀기 →':'다음 문제 →';
   $('qNumber').textContent='QUESTION '+String(qIndex).padStart(3,'0');
   $('categoryTag').textContent=categoryNames[q.cat];$('typeTag').textContent=kindNames[q.kind];
-  $('difficultyTag').textContent=q.difficulty==='hard'?'심화':'기본';$('difficultyTag').classList.toggle('hard',q.difficulty==='hard');
+  $('difficultyTag').textContent=difficultyNames[q.difficulty]||'기초';$('difficultyTag').classList.toggle('hard',q.difficulty==='hard');$('difficultyTag').classList.toggle('intermediate',q.difficulty==='intermediate');
   $('questionTitle').textContent=q.title;$('questionContext').textContent=q.context||''; $('questionContext').classList.toggle('hidden',!q.context);
   $('source').textContent='수업 자료 참고: '+q.source;
   $('codeWrap').classList.toggle('hidden',!q.code);$('codeText').textContent=q.code||'';
