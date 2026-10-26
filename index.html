@@ -37,6 +37,7 @@
     .tags {display:flex;gap:7px;flex-wrap:wrap;}
     .tag {border:1px solid #38506a;padding:4px 10px;border-radius:999px;font-size:11px;color:#cce4ff;font-weight:730;background:#1d2c45;}
     .tag.kind {background:#17413d;border-color:#276960;color:#a7f9d8;}
+    .tag.hard {background:#42321b;border-color:#8b6935;color:#ffdc9b;}
     .q-number {color:var(--muted);font-size:12px;font-weight:650;}
     .question-content {padding:19px 28px 24px;}
     h2 {font-size:clamp(20px,3.2vw,26px);line-height:1.5;letter-spacing:-.037em;margin:0 0 13px;white-space:pre-line;font-weight:780;}
@@ -134,7 +135,7 @@
     </div>
     <div id="reviewBanner" class="review-banner hidden"><span>오답 다시 풀기 · 맞히면 복습 완료!</span><button type="button" class="secondary" id="backToNotebook">오답노트로 돌아가기</button></div>
     <article class="question-card" aria-label="현재 문제">
-      <div class="q-head"><div class="tags"><span class="tag kind" id="typeTag">문제 유형</span><span class="tag" id="categoryTag">학습 범위</span></div><div class="q-number" id="qNumber">QUESTION 001</div></div>
+      <div class="q-head"><div class="tags"><span class="tag kind" id="typeTag">문제 유형</span><span class="tag" id="categoryTag">학습 범위</span><span class="tag" id="difficultyTag">기본</span></div><div class="q-number" id="qNumber">QUESTION 001</div></div>
       <div class="question-content"><h2 id="questionTitle"></h2><p class="context" id="questionContext"></p><div id="codeWrap" class="code-wrap hidden"><div class="code-top"><span></span> C <span style="margin-left:auto;width:auto;height:auto;background:none;border-radius:0">main.c</span></div><pre id="codeText"></pre></div><p class="source" id="source"></p></div>
       <div class="answer-area">
         <p class="answer-title" id="answerLabel">정답을 선택해 봐</p>
@@ -165,7 +166,7 @@ const shuffle = xs => { const a=[...xs]; for(let i=a.length-1;i>0;i--){const j=r
 const categoryNames={io:'입출력·자료형',array:'배열·문자열',op:'연산자',branch:'선택문',loop:'반복문'};
 const kindNames={mc:'5지선다 개념',blank:'코드 빈칸',output:'실행 결과'};
 const bank=[];
-function add(cat,kind,source,make){bank.push({id:bank.length,cat,kind,source,make});}
+function add(cat,kind,source,make,difficulty='basic'){bank.push({id:bank.length,cat,kind,source,make,difficulty});}
 function mc(title, options, right, explanation, tip=''){
   const opts=shuffle(options.map((s,i)=>({text:String(s),right:i===right})));
   return {title,options:opts,answer:opts.findIndex(x=>x.right),explanation,tip};
@@ -250,6 +251,118 @@ add('loop','output','14차시 · 교과서 p.120',()=>{const n=rand(2,4);return 
 add('loop','output','14차시 · 교과서 p.121',()=>{const n=rand(2,3),m=rand(2,4);return output('다음 중첩 반복문의 사각형 숫자 패턴을 쓰시오.',`int main(void) {\n    int n=${n}, m=${m};\n    for (int i=0; i<n; i++) {\n        for (int j=0; j<m; j++)\n            printf("%d ", i*m+j+1);\n        printf("\\n");\n    }\n}`,Array.from({length:n},(_,i)=>Array.from({length:m},(_,j)=>i*m+j+1).join(' ')).join('\n'),'i는 행, j는 열을 나타낸다. `i*m+j+1`로 계산하므로 m개씩 연속된 숫자가 n개의 줄에 출력된다.');});
 add('loop','output','12차시 · 교과서 p.113',()=>{const start=pick([0,-1]);return output('조건이 처음부터 거짓일 때 do-while문이 출력하는 내용을 쓰시오.',`int main(void) {\n    int i=${start};\n    do {\n        printf("X");\n        i--;\n    } while (i>0);\n}`,'X','do-while은 조건을 검사하기 전에 본문을 실행하므로, 조건이 처음부터 거짓이어도 X를 한 번 출력한다.');});
 add('loop','output','13차시 · 교과서 p.118~119',()=>{const outer=rand(2,4);return output('중첩 반복문에서 break가 어디까지 적용되는지 생각하며 출력하시오.',`int main(void) {\n    for (int i=1; i<=${outer}; i++) {\n        for (int j=1; j<=3; j++) {\n            if (j==3) break;\n            printf("%d%d ", i, j);\n        }\n        printf("\\n");\n    }\n}`,Array.from({length:outer},(_,i)=>`${i+1}1 ${i+1}2`).join('\n'),'break는 안쪽 j 반복문만 종료한다. 바깥쪽 i 반복은 그대로 진행되므로 매 행에서 11 12, 21 22 ... 형태가 출력된다.');});
+
+// Twenty advanced exercises, appended to preserve existing question IDs and notebooks.
+function addHard(cat,kind,source,make){add(cat,kind,source,make,'hard');}
+
+addHard('io','mc','4~5차시 응용 · 입력 버퍼와 문자 입력',()=>({
+  ...mc('아래 입력을 순서대로 읽을 때 마지막 printf의 출력은?', ['1','0','7','K','컴파일 오류'],0,
+    '`%d`는 정수 7을 읽지만 뒤의 줄바꿈은 남긴다. 공백 없는 `%c`는 그 줄바꿈을 그대로 읽으므로 ch는 \\n이다. 따라서 비교 결과는 참인 1이다.','문자를 읽기 전에 공백을 건너뛰려면 scanf(" %c", &ch)처럼 %c 앞에 공백을 둔다.'),
+  context:'입력은 첫 줄에 7, 둘째 줄에 K이며, 각 줄 끝에서 Enter를 누른다.',
+  code:`int main(void) {\n    int n;\n    char ch;\n    scanf("%d", &n);\n    scanf("%c", &ch);\n    printf("%d", ch == '\\n');\n}`
+}));
+addHard('io','blank','5차시 응용 · 정수 평균과 형변환',()=>blank(
+  '정수 나눗셈으로 소수 부분이 사라지지 않게 double로 형변환하시오. 빈칸에는 자료형 이름만 쓰시오.',
+  `int main(void) {\n    int a = 7, b = 2;\n    printf("%.2f", (_____)(a + b) / 2);\n}`,
+  'double','(double)(a + b)로 합계 9를 먼저 실수로 변환한다. 9.0 / 2는 실수 나눗셈이므로 4.50이 출력된다. (double)((a+b)/2)는 정수 나눗셈 이후에 바꾸므로 4.00이 된다는 차이에 주의한다.'
+));
+addHard('io','output','5~6차시 응용 · 형변환 시점과 나눗셈',()=>output(
+  '형변환을 하는 위치에 주의하여 두 실수의 출력 결과를 쓰시오.',
+  `int main(void) {\n    int a = 17, b = 4;\n    printf("%.2f %.2f", (double)(a / b), (double)a / b);\n}`,
+  '4.00 4.25','첫 번째 식은 정수 나눗셈 17/4의 결과인 4를 double로 바꾼다. 두 번째 식은 17을 먼저 double로 바꾸므로 17.0/4가 되어 4.25이다.'
+));
+addHard('io','output','5~6차시 응용 · 복합 대입과 자료형 변환',()=>output(
+  '복합 대입의 변환과 정수 나눗셈을 모두 고려하여 출력하시오.',
+  `int main(void) {\n    int n = 7;\n    double x = 2.5;\n    n += x;\n    x = n / 2;\n    printf("%d %.1f", n, x);\n}`,
+  '9 4.0','n += x는 계산값 9.5를 정수형 n에 저장하므로 n은 9가 된다. 그다음 n/2는 두 피연산자가 정수이므로 4이고, 이것이 double x에 저장되어 4.0으로 출력된다.'
+));
+
+addHard('array','mc','5차시 응용 · 널 문자와 배열 원소',()=>({
+  ...mc('문자 배열을 수정한 뒤 출력되는 문자열과 문자는?', ['CL X','CLOUD X','CL O','CLOUX X','컴파일 오류'],0,
+    's[2]에 널 문자 \\0을 넣으면 %s는 인덱스 0과 1의 C, L까지만 출력한다. 문자열 출력이 끝나는 것과 배열의 다른 원소가 사라지는 것은 다르다. s[4]에는 직접 저장한 X가 남아 있다.'),
+  code:`int main(void) {\n    char s[8] = "CLOUD";\n    s[2] = '\\0';\n    s[4] = 'X';\n    printf("%s %c", s, s[4]);\n}`
+}));
+addHard('array','blank','3·13차시 응용 · 배열 제자리 뒤집기',()=>blank(
+  '배열을 제자리에서 뒤집도록, i와 마주 보는 원소의 인덱스를 n과 i로 작성하시오.',
+  `int main(void) {\n    int a[5] = {1, 2, 3, 4, 5}, n = 5;\n    for (int i = 0; i < n / 2; i++) {\n        int t = a[i];\n        a[i] = a[_____];\n        a[n - 1 - i] = t;\n    }\n    for (int i = 0; i < n; i++) printf("%d ", a[i]);\n}`,
+  'n - 1 - i','인덱스는 0부터 n-1까지다. 앞에서 i번째인 원소와 뒤에서 i번째인 원소 n-1-i를 교환한다. 중간 원소는 그대로 두고 n/2번만 교환해야 원래 배열로 돌아가지 않는다.',
+  ['n-i-1','n-(i+1)','(n-1)-i','(n-i)-1']
+));
+addHard('array','output','3·13차시 응용 · 누적합과 배열 갱신',()=>output(
+  '앞선 반복에서 바뀐 배열 값까지 사용한다. 최종 출력 결과를 쓰시오.',
+  `int main(void) {\n    int a[5] = {2, 1, 3, 2, 4};\n    for (int i = 1; i < 5; i++)\n        a[i] += a[i - 1];\n    printf("%d %d %d", a[1], a[3], a[4] - a[2]);\n}`,
+  '3 8 6','배열은 순서대로 {2,3,3,2,4}, {2,3,6,2,4}, {2,3,6,8,4}, {2,3,6,8,12}로 바뀐다. 최종 a[1]=3, a[3]=8, a[4]-a[2]=12-6=6이다.'
+));
+addHard('array','output','14차시 응용 · 2차원 배열과 삼각 영역',()=>output(
+  '대각선 위의 원소만 골라 행 번호에 따른 가중치를 곱한다. 출력값을 쓰시오.',
+  `int main(void) {\n    int a[3][3] = {{2, 5, 1}, {4, 3, 8}, {7, 6, 9}};\n    int s = 0;\n    for (int i = 0; i < 3; i++)\n        for (int j = i + 1; j < 3; j++)\n            s += a[i][j] * (i + 1);\n    printf("%d", s);\n}`,
+  '22','j는 i+1부터 시작하므로 i<j인 위치만 사용한다. i=0에서는 a[0][1]×1=5와 a[0][2]×1=1, i=1에서는 a[1][2]×2=16을 더한다. i=2에서는 내부 반복이 없으므로 합계는 22이다.'
+));
+
+addHard('op','mc','7~9차시 응용 · 비교와 비트 연산 우선순위',()=>({
+  ...mc('괄호 하나가 결과를 바꾼다. 두 식의 출력 결과는?', ['0 1','1 1','0 0','1 0','컴파일 오류'],0,
+    '==는 비트 AND인 &보다 우선순위가 높다. 첫 번째 식은 n & (1==0), 즉 6 & 0이므로 0이다. 두 번째 식은 (6 & 1)==0이며, 6의 최하위 비트가 0이므로 참인 1이다.'),
+  code:`int main(void) {\n    int n = 6;\n    printf("%d %d", n & 1 == 0, (n & 1) == 0);\n}`
+}));
+addHard('op','blank','9차시 응용 · 비트 마스크와 XOR',()=>blank(
+  '최하위 비트를 0번으로 셀 때 1번과 3번 비트만 반전하려 한다. 빈칸에는 마스크를 10진수 숫자로만 쓰시오.',
+  `int main(void) {\n    unsigned int n = 13u;\n    n ^= _____;\n    printf("%u", n);\n}`,
+  '10','반전할 비트에만 1을 놓으면 마스크는 2^1+2^3=2+8=10이다. XOR는 마스크가 1인 위치만 반전한다. 1101(13) XOR 1010(10)은 0111(7)이므로 최종 출력은 7이다.'
+));
+addHard('op','output','8차시 응용 · 단락 평가와 증감 연산',()=>output(
+  '&&와 ||에서 오른쪽 식이 실제로 실행되는지 따져 두 줄의 출력을 쓰시오.',
+  `int main(void) {\n    int a = 0, b = 2, c;\n    c = (a++ && ++b);\n    printf("%d %d %d\\n", a, b, c);\n    c = (a || b++);\n    printf("%d %d %d", a, b, c);\n}`,
+  '1 2 0\n1 2 1','첫 &&의 왼쪽 a++는 증가 전 값 0을 낸 뒤 a를 1로 만든다. 왼쪽이 거짓이므로 ++b는 실행하지 않아 b=2, c=0이다. 다음 ||는 왼쪽 a가 1이므로 참이며 b++를 실행하지 않는다. 따라서 두 번째는 a=1, b=2, c=1이다.'
+));
+addHard('op','output','9차시 응용 · 비트 이동·XOR·마스킹',()=>output(
+  '16진수 상수와 비트 연산을 순서대로 계산하여 10진수 출력값을 쓰시오.',
+  `int main(void) {\n    unsigned int n = 0x2Du;\n    n = ((n << 1) ^ 0x13u) & 0x3Fu;\n    printf("%u %u", n, n >> 2);\n}`,
+  '9 2','0x2D는 45이고 왼쪽으로 1비트 이동하면 90(0x5A)이다. 0x5A XOR 0x13은 0x49(73)이다. 여기에 0x3F를 AND하면 아래 6비트만 남아 0x09(9)가 된다. 9를 오른쪽으로 2비트 이동한 값은 2이다.'
+));
+
+addHard('branch','mc','10차시 응용 · 중첩 if와 else의 연결',()=>({
+  ...mc('중괄호가 없는 중첩 if문에서 최종 출력은?', ['C','BC','AC','ABC','아무것도 출력되지 않는다'],0,
+    'else는 들여쓰기와 관계없이 아직 else가 없는 가장 가까운 if(y)에 연결된다. 바깥 if(x)는 x=0으로 거짓이므로 내부 if-else 전체를 건너뛴다. 마지막 printf("C")만 실행된다.'),
+  code:`int main(void) {\n    int x = 0, y = 1;\n    if (x)\n        if (y) printf("A");\n        else printf("B");\n    printf("C");\n}`
+}));
+addHard('branch','blank','8·10차시 응용 · 윤년 조건의 예외',()=>blank(
+  '윤년은 400의 배수이거나, 4의 배수이면서 100의 배수가 아닌 해다. !=를 이용해 100의 배수를 제외하는 비교식을 쓰시오.',
+  `int main(void) {\n    int year = 1900;\n    if (year % 400 == 0 || (year % 4 == 0 && _____))\n        printf("LEAP");\n    else\n        printf("COMMON");\n}`,
+  'year % 100 != 0','4의 배수라도 100의 배수이면 제외해야 하므로 year%100!=0을 쓴다. 1900은 4와 100의 배수이지만 400의 배수가 아니어서 평년(COMMON)이다. 2000처럼 400의 배수이면 앞의 OR 조건으로 윤년이 된다.',
+  ['(year%100)!=0','0!=year%100','0!=(year%100)']
+));
+addHard('branch','output','11~13차시 응용 · switch와 continue의 범위',()=>output(
+  'switch 안의 continue와 break가 각각 어디로 이동하는지 따져 출력값을 쓰시오.',
+  `int main(void) {\n    int s = 0;\n    for (int i = 1; i <= 5; i++) {\n        switch (i % 3) {\n            case 0: continue;\n            case 1: s += i;\n            case 2: s += 2; break;\n        }\n        s++;\n    }\n    printf("%d", s);\n}`,
+  '17','case 1에는 break가 없어 case 2의 s+=2도 실행한다. i=1,2에서 s는 각각 4,7이 된다. i=3의 continue는 switch가 아니라 바깥 for의 다음 반복으로 넘어가므로 s++도 건너뛴다. i=4,5에서 s는 14,17이다. case 2의 break는 switch만 끝내므로 이후 s++를 실행한다.'
+));
+addHard('branch','output','11차시 응용 · 중첩 switch와 fall-through',()=>output(
+  '안쪽 switch의 break가 바깥 switch도 끝내는지 주의하여 출력하시오.',
+  `int main(void) {\n    int x = 2, s = 0;\n    switch (x) {\n        case 1: s += 1;\n        case 2:\n            s += 2;\n            switch (x + 1) {\n                case 3: s += 3; break;\n                default: s += 10;\n            }\n        case 3: s += 4; break;\n        default: s = -1;\n    }\n    printf("%d", s);\n}`,
+  '9','바깥 switch는 case 2에서 시작해 s=2가 된다. 안쪽 switch는 case 3에서 3을 더해 s=5가 되고, 그 break는 안쪽 switch만 끝낸다. 바깥 case 2에는 break가 없으므로 case 3으로 이어져 4를 더한 뒤 끝난다. 따라서 9이다.'
+));
+
+addHard('loop','mc','12~13차시 응용 · do-while에서의 continue',()=>({
+  ...mc('do-while문에서 continue를 만나도 조건 검사는 한다. 최종 i와 s는?', ['5 9','6 9','5 15','4 4','무한 반복'],0,
+    'i가 1,3,5일 때만 s에 더하므로 s=1+3+5=9이다. 짝수에서는 continue로 s+=i를 건너뛰지만 do-while의 조건 i<5는 검사한다. i=5인 차례의 조건이 거짓이 되어 i=5로 끝난다.'),
+  code:`int main(void) {\n    int i = 0, s = 0;\n    do {\n        i++;\n        if (i % 2 == 0) continue;\n        s += i;\n    } while (i < 5);\n    printf("%d %d", i, s);\n}`
+}));
+addHard('loop','blank','6·12차시 응용 · 유클리드 호제법',()=>blank(
+  '큰 수와 작은 수의 나머지로 두 수를 계속 갱신해 최대공약수를 구한다. %를 이용해 a를 b로 나눈 나머지 식을 쓰시오.',
+  `int main(void) {\n    int a = 84, b = 30;\n    while (b != 0) {\n        int r = _____;\n        a = b;\n        b = r;\n    }\n    printf("%d", a);\n}`,
+  'a % b','a%b를 r에 저장한 뒤 (a,b)를 (b,r)로 바꾼다. (84,30) → (30,24) → (24,6) → (6,0)이 되어 종료하므로 최대공약수인 6이 출력된다. 나머지는 a와 b를 갱신하기 전에 구해야 한다.',
+  ['(a)%(b)','a%(b)','(a)%b']
+));
+addHard('loop','output','13~14차시 응용 · 중첩 반복의 중단과 건너뛰기',()=>output(
+  'continue와 break가 함께 있는 중첩 for문의 최종 합계를 쓰시오.',
+  `int main(void) {\n    int s = 0;\n    for (int i = 1; i <= 4; i++) {\n        for (int j = 1; j <= 4; j++) {\n            if (i == j) continue;\n            if (i + j > 5) break;\n            s += i * j;\n        }\n    }\n    printf("%d", s);\n}`,
+  '30','i=1에서는 j=2,3,4의 곱을 더해 9를 얻는다. i=2에서는 j=1,3만 더해 8, i=3에서는 j=1,2만 더해 9, i=4에서는 j=1만 더해 4를 얻는다. break는 안쪽 j 반복문만 끝낸다. 합계는 9+8+9+4=30이다.'
+));
+addHard('loop','output','12~13차시 응용 · 상태 변화와 continue 추적',()=>output(
+  '짝수일 때 건너뛰는 문장까지 확인하며 total과 steps의 최종 값을 쓰시오.',
+  `int main(void) {\n    int n = 23, steps = 0, total = 0;\n    while (n > 0) {\n        if (n % 2 == 0) {\n            n /= 2;\n            continue;\n        }\n        total += n % 10;\n        n -= 3;\n        steps++;\n    }\n    printf("%d %d", total, steps);\n}`,
+  '9 3','n은 23 → 20 → 10 → 5 → 2 → 1 → -2로 변한다. 짝수에서는 n을 2로 나눈 뒤 continue하므로 total과 steps는 바뀌지 않는다. 홀수인 23,5,1의 마지막 자리 3,5,1만 더해 total=9이고, 홀수 처리를 세 번 하므로 steps=3이다.'
+));
 
 const ALL=bank.length;
 // Normalize logical program output while retaining significant newlines.
@@ -340,7 +453,7 @@ function renderNotebook(){
   notes.forEach(note=>{
     const question=note.question,card=element('details',undefined,'note-card'),summary=element('summary');
     summary.append(element('span',note.resolved?'복습 완료':'복습 필요','note-status'+(note.resolved?' done':'')),element('strong',question.title));
-    summary.append(element('span',`${categoryNames[question.cat]} · ${kindNames[question.kind]} · ${note.wrongCount}회 오답 · ${new Date(note.lastWrongAt).toLocaleString('ko-KR')}`,'note-meta'));
+    summary.append(element('span',`${categoryNames[question.cat]} · ${kindNames[question.kind]} · ${question.difficulty==='hard'?'심화':'기본'} · ${note.wrongCount}회 오답 · ${new Date(note.lastWrongAt).toLocaleString('ko-KR')}`,'note-meta'));
     const body=element('div',undefined,'note-body');
     if(question.context)body.append(element('p',question.context));
     if(question.code)body.append(element('pre',question.code));
@@ -357,7 +470,7 @@ function getPool(){return bank.filter(t=>($('category').value==='all'||t.cat===$
 function nextQuestion(){if(!currentUser)return;const pool=getPool();if(!pool.length){$('questionTitle').textContent='선택한 범위에 문제가 없습니다.';return;}
   let eligible=pool.filter(t=>!recently.includes(t.id)); if(!eligible.length)eligible=pool;
   const t=pick(eligible); recently.push(t.id);if(recently.length>Math.min(9,Math.max(2,pool.length-1)))recently.shift();
-  displayQuestion({...t.make(),cat:t.cat,kind:t.kind,source:t.source,id:t.id});
+  displayQuestion({...t.make(),cat:t.cat,kind:t.kind,source:t.source,id:t.id,difficulty:t.difficulty});
 }
 function displayQuestion(question,noteId=null){
   q=JSON.parse(JSON.stringify(question));reviewId=noteId;qIndex++;chosen=-1;answered=false;
@@ -365,6 +478,7 @@ function displayQuestion(question,noteId=null){
   $('nextBtn').textContent=noteId?'새 문제 풀기 →':'다음 문제 →';
   $('qNumber').textContent='QUESTION '+String(qIndex).padStart(3,'0');
   $('categoryTag').textContent=categoryNames[q.cat];$('typeTag').textContent=kindNames[q.kind];
+  $('difficultyTag').textContent=q.difficulty==='hard'?'심화':'기본';$('difficultyTag').classList.toggle('hard',q.difficulty==='hard');
   $('questionTitle').textContent=q.title;$('questionContext').textContent=q.context||''; $('questionContext').classList.toggle('hidden',!q.context);
   $('source').textContent='수업 자료 참고: '+q.source;
   $('codeWrap').classList.toggle('hidden',!q.code);$('codeText').textContent=q.code||'';
