@@ -229,11 +229,11 @@ function nextQuestion(){const pool=getPool();if(!pool.length){$('questionTitle')
   $('codeWrap').classList.toggle('hidden',!q.code);$('codeText').textContent=q.code||'';
   $('choiceList').classList.toggle('hidden',q.kind!=='mc');$('answerInput').classList.toggle('hidden',q.kind!=='blank');$('answerTextarea').classList.toggle('hidden',q.kind!=='output');
   $('feedback').classList.add('hidden');$('feedback').classList.remove('wrong');
-  $('nextBtn').classList.add('hidden');$('checkBtn').classList.remove('hidden');$('skipBtn').textContent='건너뛰기';
+  $('nextBtn').classList.add('hidden');$('checkBtn').classList.toggle('hidden',q.kind==='mc');$('skipBtn').textContent='건너뛰기';
   $('answerInput').disabled=false;$('answerTextarea').disabled=false;$('answerInput').value='';$('answerTextarea').value='';
   $('answerLabel').textContent=q.kind==='mc'?'맞는 보기 하나를 선택해 봐':q.kind==='blank'?'빈칸에 들어갈 C언어 코드를 작성해 봐':'프로그램의 실행 결과를 작성해 봐';
-  $('answerHelp').textContent=q.kind==='mc'?'보기는 매번 무작위 순서로 표시돼.':q.kind==='blank'?'연산자·변수명·표현식을 입력해. 의미 없는 공백은 무시해.':'실제 화면에 출력되는 내용만 작성해. 줄바꿈은 구분하고, 줄 끝 공백은 무시해. Ctrl+Enter로 제출 가능해.';
-  $('choiceList').replaceChildren();if(q.kind==='mc')q.options.forEach((o,i)=>{const b=document.createElement('button');b.type='button';b.className='choice';b.dataset.index=i;const span=document.createElement('span');span.className='num';span.textContent=i+1;const lab=document.createElement('span');lab.textContent=o.text;b.append(span,lab);b.addEventListener('click',()=>{if(answered)return;chosen=i;document.querySelectorAll('.choice').forEach((x,j)=>{x.classList.toggle('selected',j===i);x.setAttribute('aria-pressed',String(j===i));});});b.setAttribute('aria-pressed','false');$('choiceList').appendChild(b);});
+  $('answerHelp').textContent=q.kind==='mc'?'보기를 선택하면 바로 채점돼. 숫자 키 1~5로도 선택할 수 있어.':q.kind==='blank'?'연산자·변수명·표현식을 입력해. 의미 없는 공백은 무시해.':'실제 화면에 출력되는 내용만 작성해. 줄바꿈은 구분하고, 줄 끝 공백은 무시해. Ctrl+Enter로 제출 가능해.';
+  $('choiceList').replaceChildren();if(q.kind==='mc')q.options.forEach((o,i)=>{const b=document.createElement('button');b.type='button';b.className='choice';b.dataset.index=i;const span=document.createElement('span');span.className='num';span.textContent=i+1;const lab=document.createElement('span');lab.textContent=o.text;b.append(span,lab);b.addEventListener('click',()=>{if(answered)return;chosen=i;document.querySelectorAll('.choice').forEach((x,j)=>{x.classList.toggle('selected',j===i);x.setAttribute('aria-pressed',String(j===i));});checkAnswer();});b.setAttribute('aria-pressed','false');$('choiceList').appendChild(b);});
   if(q.kind==='blank')$('answerInput').focus();else if(q.kind==='output')$('answerTextarea').focus(); else $('choiceList').firstElementChild?.focus();
 }
 function checkAnswer(){if(answered||!q)return;
